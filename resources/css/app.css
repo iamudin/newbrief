@@ -1,0 +1,72 @@
+@import 'tailwindcss';
+@import 'leaflet/dist/leaflet.css';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../../app/**/*.php';
+
+@theme {
+    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+    --color-navy: #0E2B4B;
+    --color-navy-2: #1A4272;
+    --color-navy-3: #3B5A86;
+    --color-gold: #D19C2D;
+    --color-gold-soft: #FBF3DC;
+    --color-ink: #1A1F2B;
+    --color-muted: #5B6474;
+    --color-line: #E2E5EA;
+    --color-surface: #F4F5F7;
+    --color-ok: #147346;
+    --color-ok-dark: #0B6242;
+    --color-ok-soft: #E3F2EA;
+    --color-info-soft: #DCE5F2;
+}
+
+@utility card {
+    @apply rounded-[14px] border border-line bg-white p-4;
+}
+@utility card-title {
+    @apply text-sm font-bold text-ink;
+}
+@utility field {
+    @apply w-full rounded-[10px] border border-[#D5DAE1] bg-white px-3 py-2.5 text-sm text-ink outline-none focus:border-navy focus:ring-2 focus:ring-navy/15;
+}
+@utility label {
+    @apply mb-1 block text-xs font-semibold text-ink;
+}
+@utility btn {
+    @apply inline-flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-xl px-4 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-50;
+}
+@utility btn-primary {
+    @apply btn bg-navy text-white hover:bg-navy-2;
+}
+@utility btn-gold {
+    @apply btn bg-gold text-navy hover:brightness-105;
+}
+@utility btn-ok {
+    @apply btn bg-ok text-white hover:bg-ok-dark;
+}
+@utility btn-outline {
+    @apply btn border border-[#C3CBD8] bg-white text-navy hover:bg-surface;
+}
+@utility btn-danger {
+    @apply btn bg-rose-600 text-white hover:bg-rose-700;
+}
+@utility btn-sm {
+    @apply min-h-8 rounded-lg px-3 text-xs;
+}
+@utility chip {
+    @apply inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold whitespace-nowrap;
+}
+@utility tab {
+    @apply flex-1 cursor-pointer rounded-lg px-1.5 py-2 text-center text-[11px] leading-tight font-bold whitespace-nowrap text-muted sm:px-3 sm:text-xs;
+}
+@utility tab-active {
+    @apply bg-white text-navy shadow-sm;
+}
+@utility error {
+    @apply mt-1 text-xs font-semibold text-rose-600;
+}
+
+[x-cloak] { display: none !important; }

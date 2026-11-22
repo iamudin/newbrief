@@ -1,0 +1,42 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Direction;
+use App\Models\DirectionRecipient;
+use App\Models\Task;
+use App\Services\DirectionService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
+class FileController extends Controller
+{
+    public function __invoke(Request $request, string $type, int $id): StreamedResponse
+    {
+        $user = $request->user();
+
+        [$path, $name, $recipients] = match ($type) {
+            'arahan' => (function () use ($id) {
+                $direction = Direction::query()->findOrFail($id);
+
+                return [$direction->attachment_path, $direction->attachment_name, $direction->recipients()->with('direction', 'toPosition')->get()];
+            })(),
+            'tugas' => (function () use ($id) {
+                $task = Task::query()->with('recipient.direction', 'recipient.toPosition')->findOrFail($id);
+
+                return [$task->file_path, $task->file_name, collect([$task->recipient])];
+            })(),
+            'laporan' => (function () use ($id) {
+                $recipient = DirectionRecipient::query()->with('direction', 'toPosition')->findOrFail($id);
+
+                return [$recipient->report_file_path, $recipient->report_file_name, collect([$recipient])];
+            })(),
+        };
+
+        abort_unless($path && Storage::disk('local')->exists($path), 404);
+        abort_unless($recipients->contains(fn (DirectionRecipient $r) => DirectionService::canView($user, $r)), 403);
+
+        return Storage::disk('local')->download($path, $name);
+    }
+}
