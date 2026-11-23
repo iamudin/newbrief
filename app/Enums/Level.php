@@ -8,6 +8,7 @@ enum Level: string
     case Eselon3 = 'eselon3';
     case Eselon4 = 'eselon4';
     case Staff = 'staff';
+    case Arsip = 'arsip';
 
     public function label(): string
     {
@@ -16,6 +17,7 @@ enum Level: string
             self::Eselon3 => 'Eselon 3',
             self::Eselon4 => 'Eselon 4',
             self::Staff => 'Staff',
+            self::Arsip => 'Operator E-Arsip',
         };
     }
 
@@ -26,6 +28,7 @@ enum Level: string
             self::Eselon3 => 'ESELON 3',
             self::Eselon4 => 'ESELON 4',
             self::Staff => 'STAFF',
+            self::Arsip => 'E-ARSIP',
         };
     }
 
@@ -36,6 +39,7 @@ enum Level: string
             self::Eselon3 => 2,
             self::Eselon4 => 3,
             self::Staff => 4,
+            self::Arsip => 5,
         };
     }
 
@@ -45,7 +49,7 @@ enum Level: string
             self::Kadis => self::Eselon3,
             self::Eselon3 => self::Eselon4,
             self::Eselon4 => self::Staff,
-            self::Staff => null,
+            self::Staff, self::Arsip => null,
         };
     }
 
@@ -53,7 +57,7 @@ enum Level: string
     public function deadlineKey(): ?string
     {
         return match ($this) {
-            self::Kadis => null,
+            self::Kadis, self::Arsip => null,
             default => 'deadline_'.$this->value,
         };
     }
@@ -66,6 +70,20 @@ enum Level: string
             self::Eselon3 => ['sekretaris' => 'Sekretaris', 'kabid' => 'Kepala Bidang'],
             self::Eselon4 => ['kasubag' => 'Kasubag', 'kasi' => 'Kasi / Subkoordinator', 'jafung' => 'Jabatan Fungsional'],
             self::Staff => ['administrasi' => 'Administrasi', 'operator' => 'Operator', 'satpam' => 'Satpam', 'cs' => 'Cleaning Service'],
+            self::Arsip => ['operator_arsip' => 'Operator E-Arsip'],
+        };
+    }
+
+    /** Jenjang atasan yang sah untuk jenjang ini (null = tanpa atasan). */
+    public function allowedParents(): array
+    {
+        return match ($this) {
+            self::Kadis => [],
+            self::Eselon3 => [self::Kadis],
+            self::Eselon4 => [self::Eselon3],
+            self::Staff => [self::Eselon4],
+            // Operator E-Arsip berada di bawah Kasubag Umum (atau pejabat setara) yang memaraf surat.
+            self::Arsip => [self::Eselon4, self::Eselon3],
         };
     }
 

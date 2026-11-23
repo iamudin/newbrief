@@ -29,6 +29,10 @@ class Setting extends Model
         'office_latitude' => '-6.1753924',
         'office_longitude' => '106.8271528',
         'office_radius' => '150',
+        'wa_enabled' => '0',
+        'wa_host' => '',
+        'wa_session' => 'brief',
+        'wa_remind_directions' => '1',
     ];
 
     public static function get(string $key, ?string $default = null): ?string

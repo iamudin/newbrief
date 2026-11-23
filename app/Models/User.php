@@ -75,6 +75,7 @@ class User extends Authenticatable
             Level::Eselon3 => route('eselon3.dashboard'),
             Level::Eselon4 => route('eselon4.dashboard'),
             Level::Staff => route('staff.dashboard'),
+            Level::Arsip => route('arsip.index'),
             default => route('no-position'),
         };
     }

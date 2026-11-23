@@ -1,5 +1,6 @@
 import L from 'leaflet';
 import Sortable from 'sortablejs';
+import QRCode from 'qrcode';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -9,6 +10,7 @@ L.Icon.Default.mergeOptions({ iconUrl: markerIcon, iconRetinaUrl: markerIcon2x, 
 
 window.L = L;
 window.Sortable = Sortable;
+window.QRCode = QRCode;
 
 /**
  * Ambil lokasi sekali saat pengguna melakukan aksi.

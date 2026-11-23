@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\ArsipPrintController;
 use App\Http\Controllers\FileController;
 use App\Livewire\Admin;
+use App\Livewire\Arsip;
 use App\Livewire\Auth\Login;
 use App\Livewire\Eselon;
 use App\Livewire\Kadis;
@@ -26,13 +28,22 @@ Route::middleware('auth')->group(function () {
         return redirect()->route('login');
     })->name('logout');
 
-    Route::get('/berkas/{type}/{id}', FileController::class)->name('file')->whereIn('type', ['arahan', 'tugas', 'laporan']);
+    Route::get('/berkas/{type}/{id}', FileController::class)->name('file')->whereIn('type', ['arahan', 'tugas', 'laporan', 'surat']);
 
     // Fitur bersama pejabat & pegawai
     Route::livewire('/instruksi/{recipient}', Shared\RecipientDetail::class)->middleware('level:kadis,eselon3,eselon4,staff')->name('recipient.show');
-    Route::livewire('/notifikasi', Shared\Notifications::class)->middleware('level:kadis,eselon3,eselon4,staff')->name('notifications');
+    Route::livewire('/notifikasi', Shared\Notifications::class)->middleware('level:kadis,eselon3,eselon4,staff,arsip')->name('notifications');
     Route::livewire('/anggota', Shared\Members::class)->middleware('level:eselon3,eselon4')->name('members');
     Route::livewire('/jadwal', Shared\Schedule::class)->middleware('level:kadis,eselon3,eselon4,staff')->name('schedule');
+
+    // E-Arsip: surat masuk & disposisi berjenjang
+    Route::middleware('level:kadis,eselon3,eselon4,staff,arsip')->prefix('e-arsip')->name('arsip.')->group(function () {
+        Route::livewire('/', Arsip\Index::class)->name('index');
+        Route::livewire('/surat-baru', Arsip\Form::class)->middleware('level:arsip')->name('create');
+        Route::livewire('/{letter}', Arsip\Show::class)->name('show');
+        Route::livewire('/{letter}/ubah', Arsip\Form::class)->name('edit');
+        Route::get('/{letter}/lembar-disposisi', ArsipPrintController::class)->name('print');
+    });
 
     Route::middleware('level:kadis')->prefix('kadis')->name('kadis.')->group(function () {
         Route::livewire('/', Kadis\Dashboard::class)->name('dashboard');
@@ -65,5 +76,6 @@ Route::middleware('auth')->group(function () {
         Route::livewire('/struktur', Admin\Structure::class)->name('structure');
         Route::livewire('/tupoksi', Admin\Duties::class)->name('duties');
         Route::livewire('/pengaturan', Admin\Settings::class)->name('settings');
+        Route::livewire('/whatsapp', Admin\WhatsApp::class)->name('whatsapp');
     });
 });

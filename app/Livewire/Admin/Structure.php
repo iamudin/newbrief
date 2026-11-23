@@ -163,7 +163,9 @@ class Structure extends Component
             return $level === Level::Kadis ? null : 'Jabatan selain Kepala Dinas harus memiliki atasan.';
         }
 
-        return $parentLevel->child() === $level ? null : $level->label().' harus berada langsung di bawah '.(collect(Level::cases())->first(fn ($l) => $l->child() === $level)?->label() ?? 'tidak ada').'.';
+        $allowed = $level->allowedParents();
+
+        return in_array($parentLevel, $allowed, true) ? null : $level->label().' harus berada langsung di bawah '.(collect($allowed)->map->label()->join(' / ') ?: 'tidak ada').'.';
     }
 
     public function render()

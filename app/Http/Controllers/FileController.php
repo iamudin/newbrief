@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Direction;
 use App\Models\DirectionRecipient;
+use App\Models\Letter;
 use App\Models\Task;
+use App\Services\ArsipService;
 use App\Services\DirectionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -15,6 +17,17 @@ class FileController extends Controller
     public function __invoke(Request $request, string $type, int $id): StreamedResponse
     {
         $user = $request->user();
+
+        if ($type === 'surat') {
+            $letter = Letter::query()->findOrFail($id);
+            abort_unless(ArsipService::canView($user, $letter), 403);
+            abort_unless(Storage::disk('local')->exists($letter->file_path), 404);
+
+            // Tampil langsung (inline) agar bisa dipratinjau; ?unduh=1 untuk mengunduh.
+            return $request->boolean('unduh')
+                ? Storage::disk('local')->download($letter->file_path, $letter->file_name)
+                : Storage::disk('local')->response($letter->file_path, $letter->file_name, ['Content-Disposition' => 'inline; filename="'.addslashes($letter->file_name).'"']);
+        }
 
         [$path, $name, $recipients] = match ($type) {
             'arahan' => (function () use ($id) {

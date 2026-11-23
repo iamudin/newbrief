@@ -28,7 +28,7 @@ class Directions extends Component
 
     public function send(DirectionService $service): void
     {
-        $eselon3 = auth()->user()->position()->children;
+        $eselon3 = auth()->user()->position()->subordinates;
 
         $this->validate([
             'generalTitle' => 'nullable|string|max:150',
@@ -69,7 +69,7 @@ class Directions extends Component
         $position = auth()->user()->position();
 
         return view('livewire.kadis.directions', [
-            'eselon3' => $position->children()->with('currentAssignment.user')->get(),
+            'eselon3' => $position->subordinates()->with('currentAssignment.user')->get(),
             'history' => Direction::query()->where('from_position_id', $position->id)
                 ->with(['recipients.toPosition', 'fromUser'])
                 ->latest('date')->latest('id')

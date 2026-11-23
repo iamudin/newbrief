@@ -30,6 +30,12 @@ class Position extends Model
         return $this->hasMany(self::class, 'parent_id')->orderBy('sort_order')->orderBy('id');
     }
 
+    /** Bawahan langsung yang menerima instruksi (jenjang tepat di bawahnya, tanpa Operator E-Arsip). */
+    public function subordinates(): HasMany
+    {
+        return $this->children()->where('level', $this->level->child()?->value ?? '-');
+    }
+
     public function assignments(): HasMany
     {
         return $this->hasMany(PositionAssignment::class);

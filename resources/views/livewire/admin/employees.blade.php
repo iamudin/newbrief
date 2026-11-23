@@ -37,7 +37,7 @@
             <div class="col-span-2"><label class="label">Nama lengkap & gelar</label><input wire:model="name" class="field">@error('name')<p class="error">{{ $message }}</p>@enderror</div>
             <div><label class="label">NIP (dipakai login)</label><input wire:model="nip" class="field">@error('nip')<p class="error">{{ $message }}</p>@enderror</div>
             <div><label class="label">Email</label><input wire:model="email" type="email" class="field">@error('email')<p class="error">{{ $message }}</p>@enderror</div>
-            <div><label class="label">No. HP</label><input wire:model="phone" class="field"></div>
+            <div><label class="label">No. WhatsApp</label><input wire:model="phone" class="field" placeholder="08xxxxxxxxxx" inputmode="tel"><p class="mt-0.5 text-[11px] text-muted">Dipakai untuk notifikasi WhatsApp.</p></div>
             <div><label class="label">Jenis kelamin</label><select wire:model="gender" class="field"><option value="">—</option><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
             <div class="col-span-2"><label class="label">Password {{ $editingId ? '(kosongkan bila tidak diubah)' : 'awal' }}</label><input wire:model="password" type="password" class="field" autocomplete="new-password">@error('password')<p class="error">{{ $message }}</p>@enderror</div>
             <div class="col-span-2">

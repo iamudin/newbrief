@@ -57,7 +57,7 @@ class Directions extends Component
 
     public function selectAll(): void
     {
-        foreach (auth()->user()->position()->children as $child) {
+        foreach (auth()->user()->position()->subordinates as $child) {
             $this->selected[$child->id] = true;
         }
     }
@@ -103,7 +103,7 @@ class Directions extends Component
     {
         $user = auth()->user();
         $position = $user->position();
-        $children = $position->children()->with('currentAssignment.user', 'duties')->get();
+        $children = $position->subordinates()->with('currentAssignment.user', 'duties')->get();
 
         $approvedInitiatives = Initiative::query()
             ->whereIn('position_id', $children->pluck('id'))

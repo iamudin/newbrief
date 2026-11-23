@@ -9,9 +9,11 @@ use App\Models\Position;
 use App\Models\PositionAssignment;
 use App\Models\Setting;
 use App\Models\User;
+use App\Services\ArsipService;
 use App\Services\DirectionService;
 use App\Services\WorkCalendar;
 use Illuminate\Database\Seeder;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
 
@@ -49,6 +51,7 @@ class DatabaseSeeder extends Seeder
                         ['name' => 'Satpam Pos Belakang', 'level' => 'staff', 'category' => 'satpam', 'holder' => 'Agus Salim'],
                         ['name' => 'Cleaning Service Gedung A', 'level' => 'staff', 'category' => 'cs', 'holder' => 'Sri Wahyuni'],
                         ['name' => 'Pengadministrasi Umum', 'level' => 'staff', 'category' => 'administrasi', 'holder' => 'Dewi Lestari, A.Md'],
+                        ['name' => 'Operator E-Arsip', 'level' => 'arsip', 'category' => 'operator_arsip', 'holder' => 'Rahmat Hidayat'],
                     ]],
                     ['name' => 'Kasubag Keuangan', 'level' => 'eselon4', 'category' => 'kasubag', 'unit' => 'Sekretariat', 'holder' => 'Rina Marlina, S.Ak', 'children' => [
                         ['name' => 'Operator Keuangan', 'level' => 'staff', 'category' => 'operator', 'holder' => 'Fajar Nugroho, S.Kom'],
@@ -72,6 +75,60 @@ class DatabaseSeeder extends Seeder
         $this->createPosition($structure, null, 0);
 
         $this->seedHistory();
+        $this->seedLetters();
+    }
+
+    /** Contoh surat masuk di berbagai tahap alur E-Arsip. */
+    private function seedLetters(): void
+    {
+        $service = app(ArsipService::class);
+        $operator = Position::query()->level(Level::Arsip)->first()->holder();
+        $kasubag = Position::query()->level(Level::Arsip)->first()->parent->holder();
+        $kadisPos = Position::query()->level(Level::Kadis)->first();
+        $pdf = fn (string $name) => UploadedFile::fake()->createWithContent($name, "%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj 2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj 3 0 obj<</Type/Page/MediaBox[0 0 595 842]/Parent 2 0 R/Resources<<>>>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF");
+
+        $letters = [
+            ['sender' => 'Sekretariat Daerah', 'letter_number' => '800/SETDA/1021', 'subject' => 'Undangan rapat koordinasi percepatan perizinan berusaha', 'nature' => 'segera', 'stage' => 'forwarded'],
+            ['sender' => 'Kementerian Investasi/BKPM', 'letter_number' => 'B-245/D.3/2026', 'subject' => 'Permintaan data realisasi investasi triwulan III', 'nature' => 'sangat_segera', 'stage' => 'disposed'],
+            ['sender' => 'Ombudsman RI Perwakilan', 'letter_number' => '0112/ORI/XI/2026', 'subject' => 'Klarifikasi laporan masyarakat terkait layanan PBG', 'nature' => 'rahasia', 'stage' => 'kadis'],
+            ['sender' => 'Kantor Pajak Pratama', 'letter_number' => 'S-77/WPJ/2026', 'subject' => 'Sosialisasi integrasi NPWP pada perizinan', 'nature' => 'biasa', 'stage' => 'paraf'],
+        ];
+
+        $base = now()->copy();
+
+        foreach ($letters as $i => $row) {
+            Carbon::setTestNow($base->copy()->subDays(4 - $i)->setTime(9, 15));
+            $letter = $service->store($operator, [
+                'sender' => $row['sender'], 'letter_number' => $row['letter_number'], 'subject' => $row['subject'], 'nature' => $row['nature'],
+                'letter_date' => now()->subDays(2)->toDateString(), 'received_date' => now()->toDateString(),
+            ], $pdf('surat-'.($i + 1).'.pdf'));
+
+            if ($row['stage'] === 'paraf') {
+                continue;
+            }
+
+            Carbon::setTestNow(now()->addMinutes(40));
+            $service->paraf($kasubag, $letter, 'Mohon arahan Bapak.');
+
+            if ($row['stage'] === 'kadis') {
+                continue;
+            }
+
+            Carbon::setTestNow(now()->addHours(2));
+            $targets = $kadisPos->subordinates->take($row['stage'] === 'forwarded' ? 2 : 1)->pluck('id')->all();
+            $service->dispose($kadisPos->holder(), $letter, $targets, ['Tindak lanjuti sesuai ketentuan/prosedur', 'Koordinasikan dengan Bidang Pelayanan'], 'Laporkan hasilnya kepada saya.');
+
+            if ($row['stage'] === 'forwarded') {
+                $first = $letter->dispositions()->first();
+                $e3 = $first->toPosition->holder();
+                Carbon::setTestNow(now()->addHour());
+                $service->markRead($e3, $letter);
+                $service->forward($e3, $first->fresh(), $first->toPosition->subordinates->take(1)->pluck('id')->all(), 'Siapkan bahan rapat dan hadiri mewakili saya.');
+                $service->reply($e3, $first->fresh(), 'Sudah diteruskan ke Kasubag untuk penyiapan bahan.');
+            }
+        }
+
+        Carbon::setTestNow();
     }
 
     /** @param array<string, mixed> $node */
@@ -130,6 +187,7 @@ class DatabaseSeeder extends Seeder
             'satpam' => ['Patroli keliling area kantor', 'Mengatur dan mencatat tamu', 'Memeriksa kunci dan pintu akses', 'Mengawasi area parkir'],
             'cs' => ['Membersihkan ruang pelayanan', 'Membersihkan toilet dan pantry', 'Membuang sampah dan memilah limbah', 'Merapikan ruang rapat'],
             'administrasi' => ['Mengagendakan surat masuk dan keluar', 'Mengarsipkan dokumen', 'Menyiapkan bahan rapat', 'Menginput data kepegawaian'],
+            'operator_arsip' => ['Mengagendakan surat masuk', 'Memindai dan mengunggah surat', 'Mengarsipkan surat yang telah didisposisi'],
             'operator' => ['Menginput data ke aplikasi', 'Memverifikasi kelengkapan berkas', 'Membuat rekap harian', 'Memperbarui basis data'],
             default => [],
         };

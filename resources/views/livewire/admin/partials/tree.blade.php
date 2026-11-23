@@ -1,7 +1,7 @@
 <ul class="tree-list flex min-h-3 flex-col gap-1.5 {{ $depth ? 'mt-1.5 ml-7 border-l-2 border-dashed border-line pl-3' : '' }}" data-parent="{{ $parentId ?? '' }}">
     @foreach ($nodes as $node)
         @php
-            $colors = ['kadis' => 'bg-navy text-gold', 'eselon3' => 'bg-navy-2 text-white', 'eselon4' => 'bg-info-soft text-navy', 'staff' => 'bg-ok-soft text-ok-dark'];
+            $colors = ['kadis' => 'bg-navy text-gold', 'eselon3' => 'bg-navy-2 text-white', 'eselon4' => 'bg-info-soft text-navy', 'staff' => 'bg-ok-soft text-ok-dark', 'arsip' => 'bg-gold-soft text-[#7A5A00]'];
         @endphp
         <li data-id="{{ $node->id }}" class="tree-item">
             <div class="group flex items-center gap-2 rounded-xl border border-line bg-white px-3 py-2 hover:border-navy-3">

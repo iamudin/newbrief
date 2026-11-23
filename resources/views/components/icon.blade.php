@@ -1,6 +1,8 @@
 @props(['name', 'size' => 20])
 <svg width="{{ $size }}" height="{{ $size }}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" {{ $attributes }}>
     @switch($name)
+        @case('archive')<rect x="2" y="3" width="20" height="5" rx="1"/><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8"/><path d="M10 12h4"/>@break
+        @case('print')<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>@break
         @case('home')<path d="M3 10.5 12 3l9 7.5V21H3Z"/><path d="M9 21v-6h6v6"/>@break
         @case('chart')<path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/>@break
         @case('pen')<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>@break

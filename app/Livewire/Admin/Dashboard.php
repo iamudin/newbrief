@@ -29,7 +29,7 @@ class Dashboard extends Component
                 'count' => $positions->where('level', $l)->count(),
                 'patuh' => $today->where('level', $l)->where('status', Compliance::Patuh)->count(),
                 'violations' => $today->where('level', $l)->filter(fn ($r) => $r['status']->isViolation())->count(),
-                'rated' => $l !== Level::Kadis,
+                'rated' => in_array($l, Level::compliable(), true),
             ]),
         ])->title('Ringkasan Sistem');
     }

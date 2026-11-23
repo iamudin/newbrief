@@ -101,9 +101,9 @@ class DirectionService
         ?array $coords = null,
     ): Direction {
         $position = $sender->position();
-        $this->authorize($position !== null && $position->level !== Level::Staff);
+        $this->authorize($position !== null && in_array($position->level, [Level::Kadis, Level::Eselon3, Level::Eselon4], true));
 
-        $allowedChildren = $position->children()->with('currentAssignment.user')->get()->keyBy('id');
+        $allowedChildren = $position->subordinates()->with('currentAssignment.user')->get()->keyBy('id');
         $recipients = collect($recipients)->filter(fn ($r) => $allowedChildren->has((int) $r['position_id']));
 
         if ($recipients->isEmpty()) {
@@ -155,7 +155,7 @@ class DirectionService
                 $sender->name.': '.str($content)->limit(80),
                 route('recipient.show', $recipient),
                 'direction',
-            ));
+            )->withWhatsApp());
         }
 
         return $direction;
@@ -228,7 +228,7 @@ class DirectionService
     public function checkIn(User $user, ?array $coords = null): DailyCheckin
     {
         $position = $user->position();
-        $this->authorize($position !== null && $position->level !== Level::Kadis);
+        $this->authorize($position !== null && in_array($position->level, Level::compliable(), true));
 
         $log = $this->locations->record($user, $coords, 'siap');
 
@@ -451,7 +451,7 @@ class DirectionService
             'message' => $message,
         ]);
 
-        $holder->notify(new BriefNotification('Teguran dari '.$user->name, $message, null, 'warning'));
+        $holder->notify((new BriefNotification('Teguran dari '.$user->name, $message, route('home'), 'warning'))->withWhatsApp());
 
         return $reprimand;
     }

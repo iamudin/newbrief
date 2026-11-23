@@ -2,6 +2,7 @@
 
 use App\Livewire\Auth\Login;
 use App\Models\DirectionRecipient;
+use App\Models\Letter;
 use App\Models\User;
 
 it('renders every page for each role with seeded data', function () {
@@ -13,7 +14,9 @@ it('renders every page for each role with seeded data', function () {
         [$byLevel('kadis'), ['/kadis', '/kadis/arahan', '/kadis/patuh', '/kadis/pegawai', '/kadis/peta', '/jadwal', '/notifikasi', '/instruksi/'.DirectionRecipient::query()->first()->id]],
         [$byLevel('eselon3'), ['/eselon3', '/eselon3/arahan', '/anggota', '/jadwal']],
         [$byLevel('eselon4'), ['/eselon4', '/eselon4/bagi-verifikasi', '/anggota']],
-        [$byLevel('staff'), ['/staff', '/staff/tugas', '/staff/tupoksi', '/notifikasi']],
+        [$byLevel('staff'), ['/staff', '/staff/tugas', '/staff/tupoksi', '/notifikasi', '/e-arsip']],
+        [$byLevel('arsip'), ['/e-arsip', '/e-arsip/surat-baru', '/e-arsip/'.Letter::query()->first()->id]],
+        [$byLevel('kadis'), ['/e-arsip', '/e-arsip/'.Letter::query()->whereNotNull('disposed_at')->first()->id, '/e-arsip/'.Letter::query()->whereNotNull('disposed_at')->first()->id.'/lembar-disposisi']],
     ];
 
     foreach ($pages as [$user, $urls]) {

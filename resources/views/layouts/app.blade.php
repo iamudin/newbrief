@@ -29,8 +29,9 @@
             </div>
             <nav class="flex flex-1 flex-col gap-1 px-3">
                 @foreach ($nav as $item)
-                    <a href="{{ route($item['route']) }}" wire:navigate @class(['flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold', 'bg-white text-navy' => request()->routeIs($item['active']), 'text-[#C9D3E3] hover:bg-navy-2' => ! request()->routeIs($item['active'])])>
+                    <a href="{{ route($item['route']) }}" wire:navigate @class(['flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold', 'bg-white text-navy' => request()->routeIs(...(array) $item['active']), 'text-[#C9D3E3] hover:bg-navy-2' => ! request()->routeIs(...(array) $item['active'])])>
                         <x-icon :name="$item['icon']" size="18" />{{ $item['label'] }}
+                        @if (! empty($item['badge']))<span class="ml-auto chip bg-gold text-navy">{{ $item['badge'] }}</span>@endif
                     </a>
                 @endforeach
                 <a href="{{ route('notifications') }}" wire:navigate @class(['flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold', 'bg-white text-navy' => request()->routeIs('notifications'), 'text-[#C9D3E3] hover:bg-navy-2' => ! request()->routeIs('notifications')])>
@@ -52,8 +53,8 @@
     {{-- Bottom nav mobile --}}
     <nav aria-label="Menu utama" class="fixed inset-x-0 bottom-0 z-[900] grid border-t border-line bg-white pb-[env(safe-area-inset-bottom)] lg:hidden" style="grid-template-columns: repeat({{ count($nav) }}, minmax(0, 1fr));">
         @foreach ($nav as $item)
-            <a href="{{ route($item['route']) }}" wire:navigate @class(['flex h-16 flex-col items-center justify-center gap-[3px] text-[10px]', 'font-bold text-navy' => request()->routeIs($item['active']), 'font-semibold text-muted' => ! request()->routeIs($item['active'])])>
-                <x-icon :name="$item['icon']" size="20" />{{ $item['label'] }}
+            <a href="{{ route($item['route']) }}" wire:navigate @class(['flex h-16 flex-col items-center justify-center gap-[3px] text-[10px]', 'font-bold text-navy' => request()->routeIs(...(array) $item['active']), 'font-semibold text-muted' => ! request()->routeIs(...(array) $item['active'])])>
+                <span class="relative"><x-icon :name="$item['icon']" size="20" />@if (! empty($item['badge']))<span class="absolute -top-1.5 -right-2.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-rose-600 px-1 text-[9px] font-extrabold text-white">{{ $item['badge'] > 9 ? '9+' : $item['badge'] }}</span>@endif</span>{{ $item['label'] }}
             </a>
         @endforeach
     </nav>
