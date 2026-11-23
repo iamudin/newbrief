@@ -20,6 +20,21 @@
                 <div><label class="label">{{ $label }}</label><input type="time" wire:model="values.{{ $key }}" class="field">@error("values.$key")<p class="error">{{ $message }}</p>@enderror</div>
             @endforeach
         </section>
+        <section class="card grid grid-cols-4 gap-3" data-test="dashboard-targets">
+            <div class="col-span-4">
+                <h2 class="card-title">Target dashboard Kepala Dinas</h2>
+                <p class="text-[11px] text-muted">Dipakai untuk warna capaian: hijau ≥ target, kuning ≤ 10 poin di bawah target, merah lebih rendah.</p>
+            </div>
+            @foreach (['target_siap' => 'SIAP tepat waktu (%)', 'target_lapor' => 'Melapor tepat waktu (%)', 'target_tuntas' => 'Tugas tuntas (%)', 'target_disposisi' => 'Disposisi tepat waktu (%)', 'target_merata' => 'Staf beban ideal (%)'] as $key => $label)
+                <div><label class="label">{{ $label }}</label><input type="number" min="1" max="100" wire:model="values.{{ $key }}" class="field">@error("values.$key")<p class="error">{{ $message }}</p>@enderror</div>
+            @endforeach
+            <div><label class="label">Arahan Kadis disarankan ≤</label><input type="time" wire:model="values.deadline_kadis" class="field">@error('values.deadline_kadis')<p class="error">{{ $message }}</p>@enderror</div>
+            <div><label class="label">Beban ideal min (tugas)</label><input type="number" min="1" max="20" wire:model="values.workload_ideal_min" class="field">@error('values.workload_ideal_min')<p class="error">{{ $message }}</p>@enderror</div>
+            <div><label class="label">Beban ideal maks (tugas)</label><input type="number" min="1" max="20" wire:model="values.workload_ideal_max" class="field">@error('values.workload_ideal_max')<p class="error">{{ $message }}</p>@enderror</div>
+            <div class="col-span-2"><label class="label">Batas disposisi surat Biasa/Rahasia (jam sejak diinput)</label><input type="number" min="1" max="168" wire:model="values.disposition_hours" class="field">@error('values.disposition_hours')<p class="error">{{ $message }}</p>@enderror</div>
+            <div class="col-span-2"><label class="label">Batas disposisi surat Segera/Sangat Segera (jam)</label><input type="number" min="1" max="168" wire:model="values.disposition_urgent_hours" class="field">@error('values.disposition_urgent_hours')<p class="error">{{ $message }}</p>@enderror</div>
+            <p class="col-span-4 -mt-1 text-[11px] text-muted">Batas arahan Kadis hanya ditampilkan di dashboard; Kepala Dinas tetap tidak dinilai kepatuhannya.</p>
+        </section>
         <section class="card grid grid-cols-3 gap-3">
             <h2 class="card-title col-span-3">Lokasi kantor & radius</h2>
             <div class="col-span-3"><label class="label">Nama lokasi</label><input wire:model="values.office_name" class="field"></div>

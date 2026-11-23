@@ -48,7 +48,21 @@ class Settings extends Component
             'values.office_latitude' => 'required|numeric|between:-90,90',
             'values.office_longitude' => 'required|numeric|between:-180,180',
             'values.office_radius' => 'required|integer|between:20,5000',
+            'values.deadline_kadis' => $time,
+            'values.target_siap' => 'required|integer|between:1,100',
+            'values.target_lapor' => 'required|integer|between:1,100',
+            'values.target_tuntas' => 'required|integer|between:1,100',
+            'values.target_disposisi' => 'required|integer|between:1,100',
+            'values.target_merata' => 'required|integer|between:1,100',
+            'values.workload_ideal_min' => 'required|integer|between:1,20',
+            'values.workload_ideal_max' => 'required|integer|between:1,20|gte:values.workload_ideal_min',
+            'values.disposition_hours' => 'required|integer|between:1,168',
+            'values.disposition_urgent_hours' => 'required|integer|between:1,168',
         ], attributes: [
+            'values.workload_ideal_min' => 'beban ideal minimal',
+            'values.workload_ideal_max' => 'beban ideal maksimal',
+            'values.disposition_hours' => 'batas disposisi',
+            'values.disposition_urgent_hours' => 'batas disposisi surat segera',
             'values.deadline_eselon4' => 'batas Eselon 4',
             'values.deadline_staff' => 'batas Staff',
             'values.office_radius' => 'radius kantor',
@@ -67,7 +81,8 @@ class Settings extends Component
             $this->reset('logo');
         }
 
-        foreach ($this->values as $key => $value) {
+        // Pengaturan WhatsApp dikelola di halaman WhatsApp; jangan ditimpa nilai lama dari form ini.
+        foreach (collect($this->values)->reject(fn ($v, $key) => str_starts_with($key, 'wa_')) as $key => $value) {
             Setting::put($key, $value);
         }
 

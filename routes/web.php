@@ -9,6 +9,7 @@ use App\Livewire\Eselon;
 use App\Livewire\Kadis;
 use App\Livewire\Shared;
 use App\Livewire\Staff;
+use App\Services\KadisDashboardService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -48,6 +49,7 @@ Route::middleware(['auth', 'auth.session', 'account'])->group(function () {
 
     Route::middleware('level:kadis')->prefix('kadis')->name('kadis.')->group(function () {
         Route::livewire('/', Kadis\Dashboard::class)->name('dashboard');
+        Route::livewire('/indikator/{metric}', Kadis\Metric::class)->whereIn('metric', array_keys(KadisDashboardService::METRICS))->name('metric');
         Route::livewire('/arahan', Kadis\Directions::class)->name('directions');
         Route::livewire('/patuh', Kadis\Compliance::class)->name('compliance');
         Route::livewire('/pegawai', Kadis\Employees::class)->name('employees');
