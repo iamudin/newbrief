@@ -71,7 +71,7 @@ class DirectionReminderService
                 "Batas membuat/meneruskan instruksi ke bawahan pukul {$deadline} telah lewat dan Anda ({$position->name}) belum membuat instruksi hari ini. Mohon segera ditindaklanjuti.",
                 $level === Level::Eselon3 ? route('eselon3.directions') : route('eselon4.directions'),
                 'warning',
-            ))->withWhatsApp());
+            ))->withWhatsApp(null, 'pengingat'));
 
             $count++;
         }

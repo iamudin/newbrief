@@ -115,7 +115,7 @@ class RecipientDetail extends Component
         $forwarded = Direction::query()
             ->where('parent_id', $this->recipient->direction_id)
             ->where('from_position_id', $this->recipient->to_position_id)
-            ->with(['recipients.toPosition', 'recipients.toUser', 'recipients.tasks'])
+            ->with(['recipients.toPosition', 'recipients.toUser', 'recipients.tasks', 'recipients.whatsappMessages'])
             ->get();
 
         return view('livewire.shared.recipient-detail', [

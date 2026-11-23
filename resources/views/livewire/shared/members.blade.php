@@ -27,7 +27,7 @@
                                 <button type="button" wire:click="openField({{ $p->id }})" class="btn-outline btn-sm">Tetapkan dinas luar</button>
                             @endif
                             @if ($c && $c['status']->isViolation())
-                                @if ($row['reprimanded'])<span class="chip bg-rose-50 text-rose-600">Sudah ditegur</span>@else<button type="button" wire:click="openReprimand({{ $p->id }})" class="btn-danger btn-sm">Teguran</button>@endif
+                                @if ($row['reprimanded'])<span class="chip bg-rose-50 text-rose-600">Sudah ditegur</span><x-wa-status :message="$row['reprimand']?->whatsappFor()" />@else<button type="button" wire:click="openReprimand({{ $p->id }})" class="btn-danger btn-sm">Teguran</button>@endif
                             @endif
                         </div>
                     @endif

@@ -40,7 +40,7 @@
                     <div class="mt-1 text-[11px] text-muted">Oleh {{ $d->fromUser->name }} · {{ $d->recipients->whereNotNull('confirmed_at')->count() }}/{{ $d->recipients->count() }} SIAP</div>
                     <div class="mt-1.5 flex flex-wrap gap-1">
                         @foreach ($d->recipients as $r)
-                            <a href="{{ route('recipient.show', $r) }}" wire:navigate class="chip {{ $r->confirmed_at ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500' }}">{{ $r->toPosition->name }}</a>
+                            <span class="inline-flex items-center gap-0.5"><a href="{{ route('recipient.show', $r) }}" wire:navigate class="chip {{ $r->confirmed_at ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-500' }}">{{ $r->toPosition->name }}</a><x-wa-status :message="$r->whatsappFor()" compact /></span>
                         @endforeach
                     </div>
                 </div>

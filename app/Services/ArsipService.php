@@ -151,7 +151,7 @@ class ArsipService
             "No. Agenda {$letter->agenda_number}\nDari: {$letter->sender}\nNo. surat: {$letter->letter_number}\nPerihal: ".str($letter->subject)->limit(120),
             route('arsip.show', $letter),
             'info',
-        ))->withWhatsApp());
+        ))->withWhatsApp($letter, 'arsip_paraf'));
 
         return $letter;
     }
@@ -202,7 +202,7 @@ class ArsipService
             "Diparaf {$user->name}\nNo. Agenda {$letter->agenda_number} · {$letter->natureLabel()}\nDari: {$letter->sender}\nPerihal: ".str($letter->subject)->limit(120),
             route('arsip.show', $letter),
             'info',
-        ))->withWhatsApp());
+        ))->withWhatsApp($letter, 'arsip_kadis'));
 
         $letter->creator->notify(new BriefNotification('Surat diparaf', "No. {$letter->letter_number} diteruskan ke Kepala Dinas", route('arsip.show', $letter), 'success'));
     }
@@ -347,7 +347,7 @@ class ArsipService
                 "Dari {$from->name}\nSurat: {$letter->sender} ({$letter->natureLabel()})\nPerihal: ".str($letter->subject)->limit(120).($disposition->note ? "\nCatatan: ".str($disposition->note)->limit(150) : ''),
                 route('arsip.show', $letter),
                 'direction',
-            ))->withWhatsApp());
+            ))->withWhatsApp($disposition, 'disposisi'));
         }
     }
 }

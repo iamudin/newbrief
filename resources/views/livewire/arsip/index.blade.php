@@ -32,11 +32,15 @@
                         @if ($mine)<span class="chip {{ $mine->stateClass() }}">{{ $mine->stateLabel() }}</span>@else<span class="chip {{ $letter->stageClass() }}">{{ $letter->stageLabel() }}</span>@endif
                     </div>
                 </div>
+                <div class="mt-2 flex flex-wrap items-center gap-1 border-t border-line pt-2">
+                    <x-wa-status :message="$letter->whatsappFor('arsip_paraf')" :label="'Paraf '.($letter->verifierPosition?->name ?? '')" />
+                    <x-wa-status :message="$letter->whatsappFor('arsip_kadis')" label="Kadis" />
+                </div>
                 @if ($letter->disposed_at && $letter->dispositions->isNotEmpty())
-                    <div class="mt-2 flex flex-wrap gap-1 border-t border-line pt-2">
+                    <div class="mt-1.5 flex flex-wrap items-center gap-1">
                         <span class="text-[10px] text-muted">Disposisi:</span>
                         @foreach ($letter->dispositions->whereNull('parent_id') as $d)
-                            <span class="chip {{ $d->stateClass() }}">{{ $d->toPosition->name }}</span>
+                            <span class="inline-flex items-center gap-0.5"><span class="chip {{ $d->stateClass() }}">{{ $d->toPosition->name }}</span><x-wa-status :message="$d->whatsappFor()" compact /></span>
                         @endforeach
                     </div>
                 @endif

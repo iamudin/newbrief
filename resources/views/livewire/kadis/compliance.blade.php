@@ -27,6 +27,7 @@
                     @if ($result && $result['status']->isViolation() && $row['user'] && $isToday)
                         @if ($row['reprimanded'])
                             <span class="text-[10px] font-semibold text-rose-600">Sudah ditegur</span>
+                            <x-wa-status :message="$row['reprimand']?->whatsappFor()" compact />
                         @else
                             <button type="button" wire:click="openReprimand({{ $row['position']->id }})" class="btn-danger btn-sm">Teguran</button>
                         @endif

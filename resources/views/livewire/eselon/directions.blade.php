@@ -47,7 +47,7 @@
                 @forelse ($sentToday as $r)
                     <div role="link" tabindex="0" x-data x-on:click="Livewire.navigate('{{ route('recipient.show', $r) }}')" class="cursor-pointer rounded-xl border border-line p-2.5 hover:bg-surface">
                         <div class="flex items-center justify-between gap-2">
-                            <div class="min-w-0"><div class="truncate text-sm font-semibold">{{ $r->toUser?->name ?? $r->toPosition->name }}</div><div class="text-[11px] text-muted">{{ $r->direction->created_at->format('H.i') }} · {{ $r->doneCount() }}/{{ $r->tasks->count() }} tugas</div></div>
+                            <div class="min-w-0"><div class="truncate text-sm font-semibold">{{ $r->toUser?->name ?? $r->toPosition->name }}</div><div class="text-[11px] text-muted">{{ $r->direction->created_at->format('H.i') }} · {{ $r->doneCount() }}/{{ $r->tasks->count() }} tugas</div><x-wa-status :message="$r->whatsappFor()" class="mt-1" /></div>
                             <span class="chip {{ $r->stateClass() }}">{{ $r->stateLabel() }}</span>
                         </div>
                         <x-recipient-attachments :recipient="$r" />

@@ -6,6 +6,7 @@ use App\Jobs\SendWhatsApp;
 use App\Models\Setting;
 use App\Models\User;
 use App\Models\WhatsappMessage;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
@@ -46,21 +47,49 @@ class WhatsAppService
         return strlen($number) >= 10 ? $number : null;
     }
 
-    /** Antrekan pesan ke pengguna. Mengembalikan null bila WA nonaktif atau nomor tidak valid. */
-    public function queueToUser(User $user, string $text, string $kind = 'info'): ?WhatsappMessage
+    /**
+     * Antrekan pesan ke pengguna. Bila tidak bisa dikirim (WA nonaktif, nomor kosong/tidak valid,
+     * akun nonaktif) tetap dicatat berstatus "skipped" beserta alasannya agar terlihat di daftar.
+     */
+    public function queueToUser(User $user, string $text, string $kind = 'info', ?Model $subject = null): WhatsappMessage
     {
         $to = self::formatPhone($user->phone);
 
-        if (! self::isEnabled() || ! $to || ! $user->is_active) {
-            return null;
+        $skipReason = match (true) {
+            ! self::isConfigured() => 'Gateway WhatsApp belum dikonfigurasi.',
+            ! self::isEnabled() => 'Notifikasi WhatsApp sedang dinonaktifkan.',
+            blank($user->phone) => 'Nomor WhatsApp '.$user->name.' belum diisi.',
+            ! $to => 'Nomor WhatsApp '.$user->name.' tidak valid.',
+            ! $user->is_active => 'Akun '.$user->name.' nonaktif.',
+            default => null,
+        };
+
+        if ($skipReason) {
+            return WhatsappMessage::query()->create([
+                'user_id' => $user->id,
+                'to' => $to ?? '-',
+                'text' => $text,
+                'kind' => $kind,
+                'status' => 'skipped',
+                'error' => $skipReason,
+                'subject_type' => $subject?->getMorphClass(),
+                'subject_id' => $subject?->getKey(),
+            ]);
         }
 
-        return $this->queue($to, $text, $kind, $user->id);
+        return $this->queue($to, $text, $kind, $user->id, $subject);
     }
 
-    public function queue(string $to, string $text, string $kind = 'info', ?int $userId = null): WhatsappMessage
+    public function queue(string $to, string $text, string $kind = 'info', ?int $userId = null, ?Model $subject = null): WhatsappMessage
     {
-        $message = WhatsappMessage::query()->create(['user_id' => $userId, 'to' => $to, 'text' => $text, 'kind' => $kind]);
+        $message = WhatsappMessage::query()->create([
+            'user_id' => $userId,
+            'to' => $to,
+            'text' => $text,
+            'kind' => $kind,
+            'subject_type' => $subject?->getMorphClass(),
+            'subject_id' => $subject?->getKey(),
+        ]);
 
         try {
             SendWhatsApp::dispatch($message->id);

@@ -52,13 +52,14 @@ class Compliance extends Component
         $date = min($this->date ?: today()->toDateString(), today()->toDateString());
         $positions = Position::query()->level($level)->with('currentAssignment.user', 'parent')->orderBy('sort_order')->get();
         $results = $compliance->forDate($date, $positions->pluck('id'));
-        $reprimanded = Reprimand::query()->whereDate('date', $date)->pluck('to_position_id')->flip();
+        $reprimanded = Reprimand::query()->whereDate('date', $date)->with('whatsappMessages')->latest('id')->get()->unique('to_position_id')->keyBy('to_position_id');
 
         $rows = $positions->map(fn (Position $p) => [
             'position' => $p,
             'user' => $results->get($p->id) ? User::find($results->get($p->id)['user_id']) : $p->holder(),
             'result' => $results->get($p->id),
             'reprimanded' => $reprimanded->has($p->id),
+            'reprimand' => $reprimanded->get($p->id),
         ])->sortBy(fn ($r) => $r['result'] ? ($r['result']['status']->isViolation() ? 0 : 1) : 2);
 
         $counts = collect(Level::compliable())->mapWithKeys(fn (Level $l) => [$l->value => $compliance->forDate($date, Position::query()->level($l)->pluck('id'))->filter(fn ($r) => $r['status']->isViolation())->count()]);

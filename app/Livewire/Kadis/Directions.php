@@ -71,7 +71,7 @@ class Directions extends Component
         return view('livewire.kadis.directions', [
             'eselon3' => $position->subordinates()->with('currentAssignment.user')->get(),
             'history' => Direction::query()->where('from_position_id', $position->id)
-                ->with(['recipients.toPosition', 'fromUser'])
+                ->with(['recipients.toPosition', 'recipients.whatsappMessages', 'fromUser'])
                 ->latest('date')->latest('id')
                 ->paginate(10),
         ])->title('Arahan');

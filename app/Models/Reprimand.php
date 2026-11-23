@@ -2,11 +2,14 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasWhatsappMessages;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Reprimand extends Model
 {
+    use HasWhatsappMessages;
+
     protected $guarded = ['id'];
 
     protected function casts(): array

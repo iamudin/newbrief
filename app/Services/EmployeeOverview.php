@@ -48,7 +48,7 @@ class EmployeeOverview
             ->keyBy('user_id');
 
         $field = FieldAssignment::query()->whereIn('user_id', $holderIds)->whereDate('date', $today)->get()->keyBy('user_id');
-        $reprimands = Reprimand::query()->whereIn('to_user_id', $holderIds)->whereDate('date', $today)->get()->groupBy('to_user_id');
+        $reprimands = Reprimand::query()->whereIn('to_user_id', $holderIds)->whereDate('date', $today)->with('whatsappMessages')->latest('id')->get()->groupBy('to_user_id');
 
         return $positions->map(function (Position $position) use ($compliance, $tasks, $locations, $field, $reprimands) {
             $holder = $position->holder();
@@ -66,6 +66,7 @@ class EmployeeOverview
                 'location' => $holder ? $locations->get($holder->id) : null,
                 'field' => $holder ? $field->get($holder->id) : null,
                 'reprimanded' => $holder ? $reprimands->has($holder->id) : false,
+                'reprimand' => $holder ? $reprimands->get($holder->id)?->first() : null,
             ];
         });
     }

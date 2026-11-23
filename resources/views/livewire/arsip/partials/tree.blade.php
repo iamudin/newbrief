@@ -11,7 +11,10 @@
                 </div>
                 @if ($d->parent_id && $d->note)<p class="mt-1.5 rounded-lg bg-surface px-2.5 py-1.5 text-xs"><b>Catatan:</b> {{ $d->note }}</p>@endif
                 @if ($d->reply)<p class="mt-1.5 rounded-lg bg-sky-50 px-2.5 py-1.5 text-xs"><b>Balasan</b> ({{ $d->replied_at->format('d/m H.i') }}): {{ $d->reply }}</p>@endif
-                <div class="mt-1 text-[10px] text-muted">Dibaca {{ $d->read_at?->format('d/m H.i') ?? '—' }} · Selesai {{ $d->completed_at?->format('d/m H.i') ?? '—' }}</div>
+                <div class="mt-1 flex flex-wrap items-center gap-1.5 text-[10px] text-muted">
+                    <span>Dibaca {{ $d->read_at?->format('d/m H.i') ?? '—' }} · Selesai {{ $d->completed_at?->format('d/m H.i') ?? '—' }}</span>
+                    <x-wa-status :message="$d->whatsappFor()" />
+                </div>
             </div>
             @include('livewire.arsip.partials.tree', ['parentId' => $d->id, 'depth' => $depth + 1])
         </li>

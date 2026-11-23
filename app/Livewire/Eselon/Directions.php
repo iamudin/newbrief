@@ -114,7 +114,7 @@ class Directions extends Component
 
         $outbox = DirectionRecipient::query()
             ->whereHas('direction', fn ($q) => $q->where('from_position_id', $position->id))
-            ->with('direction', 'toPosition', 'toUser', 'tasks')
+            ->with('direction', 'toPosition', 'toUser', 'tasks', 'whatsappMessages')
             ->latest('id');
 
         return view('livewire.eselon.directions', [

@@ -13,7 +13,12 @@ class WhatsAppChannel
     public function send(object $notifiable, Notification $notification): void
     {
         if ($notifiable instanceof User && method_exists($notification, 'toWhatsApp')) {
-            $this->whatsapp->queueToUser($notifiable, $notification->toWhatsApp($notifiable), $notification->kind ?? 'info');
+            $this->whatsapp->queueToUser(
+                $notifiable,
+                $notification->toWhatsApp($notifiable),
+                $notification->whatsappKind ?? $notification->kind ?? 'info',
+                $notification->whatsappSubject ?? null,
+            );
         }
     }
 }

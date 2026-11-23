@@ -76,7 +76,7 @@ class Index extends Component
                 ->orWhere('letter_number', 'like', "%{$this->search}%")
                 ->orWhere('agenda_number', 'like', "%{$this->search}%")
                 ->orWhere('subject', 'like', "%{$this->search}%")))
-            ->with(['dispositions.toPosition', 'dispositions.toUser'])
+            ->with(['dispositions.toPosition', 'dispositions.toUser', 'dispositions.whatsappMessages', 'whatsappMessages', 'verifierPosition'])
             ->latest('received_date')->latest('id')
             ->paginate(12);
 

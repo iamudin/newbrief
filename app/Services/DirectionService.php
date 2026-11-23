@@ -155,7 +155,7 @@ class DirectionService
                 $sender->name.': '.str($content)->limit(80),
                 route('recipient.show', $recipient),
                 'direction',
-            )->withWhatsApp());
+            )->withWhatsApp($recipient, 'instruksi'));
         }
 
         return $direction;
@@ -451,7 +451,7 @@ class DirectionService
             'message' => $message,
         ]);
 
-        $holder->notify((new BriefNotification('Teguran dari '.$user->name, $message, route('home'), 'warning'))->withWhatsApp());
+        $holder->notify((new BriefNotification('Teguran dari '.$user->name, $message, route('home'), 'warning'))->withWhatsApp($reprimand, 'teguran'));
 
         return $reprimand;
     }

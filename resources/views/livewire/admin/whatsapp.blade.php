@@ -58,7 +58,7 @@
         <section class="card">
             <div class="mb-3 flex items-center justify-between">
                 <h2 class="card-title">Log pengiriman</h2>
-                <span class="text-xs text-muted">Hari ini: {{ $stats['sent'] ?? 0 }} terkirim · {{ $stats['queued'] ?? 0 }} antre · {{ $stats['failed'] ?? 0 }} gagal</span>
+                <span class="text-xs text-muted">Hari ini: {{ $stats['sent'] ?? 0 }} terkirim · {{ $stats['queued'] ?? 0 }} antre · {{ $stats['failed'] ?? 0 }} gagal · {{ $stats['skipped'] ?? 0 }} tidak dikirim</span>
             </div>
             <table class="w-full text-sm">
                 <thead class="text-left text-xs text-muted"><tr><th class="py-1.5">Waktu</th><th>Penerima</th><th>Pesan</th><th>Status</th><th></th></tr></thead>
@@ -68,7 +68,7 @@
                             <td class="py-2 text-xs whitespace-nowrap text-muted">{{ $m->created_at->format('d/m H.i') }}</td>
                             <td class="text-xs">{{ $m->user?->name ?? '—' }}<div class="font-mono text-muted">{{ $m->to }}</div></td>
                             <td class="max-w-sm text-xs whitespace-pre-line">{{ str($m->text)->limit(140) }}@if ($m->error)<div class="mt-1 text-rose-600">{{ $m->error }}</div>@endif</td>
-                            <td><span class="chip {{ $m->statusClass() }}">{{ $m->status }}</span><div class="text-[10px] text-muted">{{ $m->attempts }}x</div></td>
+                            <td><span class="chip {{ $m->statusClass() }}">{{ $m->statusLabel() }}</span><div class="text-[10px] text-muted">{{ $m->attempts }}x</div></td>
                             <td class="text-right">@if ($m->status === 'failed')<button type="button" wire:click="retry({{ $m->id }})" class="btn-outline btn-sm">Ulangi</button>@endif</td>
                         </tr>
                     @empty

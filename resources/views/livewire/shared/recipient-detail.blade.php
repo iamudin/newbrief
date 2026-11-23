@@ -21,6 +21,7 @@
 
         <section class="card flex flex-col gap-1 text-xs text-muted">
             <div><b class="text-ink">Penerima:</b> {{ $recipient->toPosition->name }} · {{ $recipient->toUser?->name ?? 'Jabatan kosong' }}</div>
+            @unless ($isRecipient)<div><x-wa-status :message="$recipient->whatsappFor()" label="Notifikasi instruksi" /></div>@endunless
             <div><b class="text-ink">SIAP:</b> {{ $recipient->confirmed_at?->format('d/m H.i') ?? '—' }} · <b class="text-ink">Lapor:</b> {{ $recipient->reported_at?->format('d/m H.i') ?? '—' }} · <b class="text-ink">Verifikasi:</b> {{ $recipient->verified_at?->format('d/m H.i') ?? '—' }}</div>
         </section>
 
@@ -139,7 +140,7 @@
                 @foreach ($forwarded as $child)
                     @foreach ($child->recipients as $r)
                         <a href="{{ route('recipient.show', $r) }}" wire:navigate class="flex items-center justify-between gap-2 rounded-xl border border-line p-2.5 hover:bg-surface">
-                            <div class="flex flex-col"><span class="text-sm font-semibold">{{ $r->toUser?->name ?? '—' }}</span><span class="text-[11px] text-muted">{{ $r->toPosition->name }} · {{ $r->doneCount() }}/{{ $r->tasks->count() }} tugas</span></div>
+                            <div class="flex flex-col"><span class="text-sm font-semibold">{{ $r->toUser?->name ?? '—' }}</span><span class="text-[11px] text-muted">{{ $r->toPosition->name }} · {{ $r->doneCount() }}/{{ $r->tasks->count() }} tugas</span><x-wa-status :message="$r->whatsappFor()" compact class="mt-0.5 w-fit" /></div>
                             <span class="chip {{ $r->stateClass() }}">{{ $r->stateLabel() }}</span>
                         </a>
                     @endforeach

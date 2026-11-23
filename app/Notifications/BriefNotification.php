@@ -4,7 +4,7 @@ namespace App\Notifications;
 
 use App\Models\Setting;
 use App\Notifications\Channels\WhatsAppChannel;
-use App\Services\WhatsAppService;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notification;
 
 class BriefNotification extends Notification
@@ -15,12 +15,19 @@ class BriefNotification extends Notification
         public ?string $url = null,
         public string $kind = 'info',
         public bool $whatsapp = false,
+        public ?Model $whatsappSubject = null,
+        public ?string $whatsappKind = null,
     ) {}
 
-    /** Kirim juga ke WhatsApp (bila diaktifkan super admin & nomor HP pegawai terisi). */
-    public function withWhatsApp(bool $send = true): static
+    /**
+     * Kirim juga ke WhatsApp. $subject = data sumber (surat/disposisi/instruksi/teguran) agar status
+     * pengirimannya tampil di daftar; $kind membedakan beberapa pesan untuk data yang sama.
+     */
+    public function withWhatsApp(?Model $subject = null, ?string $kind = null): static
     {
-        $this->whatsapp = $send;
+        $this->whatsapp = true;
+        $this->whatsappSubject = $subject;
+        $this->whatsappKind = $kind;
 
         return $this;
     }
@@ -28,9 +35,8 @@ class BriefNotification extends Notification
     /** @return array<int, string> */
     public function via(object $notifiable): array
     {
-        return $this->whatsapp && WhatsAppService::isEnabled() && filled($notifiable->phone ?? null)
-            ? ['database', WhatsAppChannel::class]
-            : ['database'];
+        // Kanal WhatsApp selalu dilalui bila diminta; kanal yang memutuskan kirim atau catat "tidak dikirim".
+        return $this->whatsapp ? ['database', WhatsAppChannel::class] : ['database'];
     }
 
     /** @return array<string, mixed> */

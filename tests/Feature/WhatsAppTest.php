@@ -188,3 +188,51 @@ it('shows whether the WhatsApp device is connected or needs a scan', function ()
     Setting::put('wa_host', '');
     Livewire::actingAs($admin)->test(WhatsApp::class)->assertSee('Belum dikonfigurasi');
 });
+
+it('shows the WhatsApp delivery status on letters, dispositions, instructions and reprimands', function () {
+    Storage::fake('local');
+    $org = $this->org;
+    $org['e3']->update(['phone' => null]); // Eselon 3 belum punya nomor → tercatat "tidak dikirim"
+
+    $opPos = Position::query()->create(['name' => 'Operator E-Arsip', 'level' => 'arsip', 'parent_id' => $org['positions']['e4']->id]);
+    $operator = User::factory()->create();
+    PositionAssignment::query()->create(['position_id' => $opPos->id, 'user_id' => $operator->id, 'started_at' => today()->subMonth()]);
+
+    $arsip = app(ArsipService::class);
+    $letter = $arsip->store($operator, ['letter_number' => '9/X', 'letter_date' => today()->toDateString(), 'received_date' => today()->toDateString(), 'sender' => 'Setda', 'subject' => 'Rapat', 'nature' => 'biasa'], UploadedFile::fake()->create('s.pdf', 10, 'application/pdf'));
+
+    expect($letter->whatsappFor('arsip_paraf')->status)->toBe('sent');
+
+    // Operator melihat status WA ke Kasubag di daftar & detail surat
+    $this->actingAs($operator)->get(route('arsip.index'))->assertSee('WA terkirim')->assertSee('data-wa-status="sent"', false);
+    $this->actingAs($operator)->get(route('arsip.show', $letter))->assertSee('Notifikasi ke pemaraf');
+
+    $arsip->paraf($org['e4'], $letter);
+    $arsip->dispose($org['kadis'], $letter->fresh(), [$org['positions']['e3']->id], []);
+    $disposition = $letter->dispositions()->first();
+
+    expect($letter->fresh()->whatsappFor('arsip_kadis')->status)->toBe('sent')
+        ->and($disposition->whatsappFor()->status)->toBe('skipped')
+        ->and($disposition->whatsappFor()->error)->toContain('belum diisi');
+
+    $this->actingAs($org['kadis'])->get(route('arsip.show', $letter))
+        ->assertSee('Notifikasi ke Kadis')
+        ->assertSee('WA tidak dikirim')
+        ->assertSee('belum diisi');
+
+    // Instruksi & teguran
+    app(DirectionService::class)->send($org['e4'], 'task', 'Kerjakan', [['position_id' => $org['positions']['staff']->id, 'items' => [['title' => 'a']]]]);
+    $this->actingAs($org['e4'])->get(route('eselon4.directions'))->assertSee('data-wa-status="sent"', false);
+
+    $reprimand = app(DirectionService::class)->reprimand($org['kadis'], $org['positions']['staff'], 'Tepat waktu ya');
+    expect($reprimand->whatsappFor('teguran')->status)->toBe('sent');
+});
+
+it('records skipped messages with a reason when WhatsApp is disabled', function () {
+    Setting::put('wa_enabled', '0');
+    app(DirectionService::class)->reprimand($this->org['kadis'], $this->org['positions']['e3'], 'x');
+
+    $message = WhatsappMessage::query()->first();
+    expect($message->status)->toBe('skipped')->and($message->error)->toContain('dinonaktifkan');
+    Http::assertNothingSent();
+});

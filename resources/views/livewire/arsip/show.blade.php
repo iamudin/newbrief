@@ -50,9 +50,11 @@
                 <ol class="flex flex-col gap-2 text-xs">
                     <li class="flex gap-2"><span class="mt-0.5 size-2.5 shrink-0 rounded-full bg-ok"></span><span><b>Diinput</b> {{ $letter->operatorPosition->name }} · {{ $letter->created_at->format('d/m H.i') }}</span></li>
                     <li class="flex gap-2"><span @class(['mt-0.5 size-2.5 shrink-0 rounded-full', 'bg-ok' => $letter->paraf_at, 'bg-amber-400' => ! $letter->paraf_at])></span>
-                        <span><b>Paraf</b> {{ $letter->verifierPosition?->name ?? '—' }} · {{ $letter->paraf_at ? $letter->parafUser?->name.' · '.$letter->paraf_at->format('d/m H.i') : 'menunggu' }}@if ($letter->paraf_note)<span class="block text-muted">“{{ $letter->paraf_note }}”</span>@endif</span></li>
+                        <span><b>Paraf</b> {{ $letter->verifierPosition?->name ?? '—' }} · {{ $letter->paraf_at ? $letter->parafUser?->name.' · '.$letter->paraf_at->format('d/m H.i') : 'menunggu' }}@if ($letter->paraf_note)<span class="block text-muted">“{{ $letter->paraf_note }}”</span>@endif
+                        <span class="mt-0.5 block"><x-wa-status :message="$letter->whatsappFor('arsip_paraf')" label="Notifikasi ke pemaraf" /></span></span></li>
                     <li class="flex gap-2"><span @class(['mt-0.5 size-2.5 shrink-0 rounded-full', 'bg-ok' => $letter->disposed_at, 'bg-amber-400' => $letter->paraf_at && ! $letter->disposed_at, 'bg-line' => ! $letter->paraf_at])></span>
-                        <span><b>Disposisi Kepala Dinas</b> · {{ $letter->disposed_at ? $letter->disposer?->name.' · '.$letter->disposed_at->format('d/m H.i') : 'menunggu' }}</span></li>
+                        <span><b>Disposisi Kepala Dinas</b> · {{ $letter->disposed_at ? $letter->disposer?->name.' · '.$letter->disposed_at->format('d/m H.i') : 'menunggu' }}
+                        <span class="mt-0.5 block"><x-wa-status :message="$letter->whatsappFor('arsip_kadis')" label="Notifikasi ke Kadis" /></span></span></li>
                 </ol>
                 @if ($letter->disposed_at)
                     <div class="rounded-xl bg-navy p-3 text-white">

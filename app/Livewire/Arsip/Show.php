@@ -110,7 +110,7 @@ class Show extends Component
     public function render()
     {
         $user = auth()->user();
-        $this->letter->load(['creator', 'operatorPosition', 'verifierPosition.currentAssignment.user', 'parafUser', 'disposer', 'kadisPosition', 'dispositions.toPosition', 'dispositions.toUser', 'dispositions.fromUser', 'dispositions.fromPosition']);
+        $this->letter->load(['creator', 'operatorPosition', 'verifierPosition.currentAssignment.user', 'parafUser', 'disposer', 'kadisPosition', 'dispositions.toPosition', 'dispositions.toUser', 'dispositions.fromUser', 'dispositions.fromPosition', 'dispositions.whatsappMessages', 'whatsappMessages']);
         $mine = $this->myDisposition();
         $position = $user->position();
 
