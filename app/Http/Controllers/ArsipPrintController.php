@@ -3,26 +3,26 @@
 namespace App\Http\Controllers;
 
 use App\Models\Letter;
-use App\Models\Setting;
 use App\Services\ArsipService;
+use App\Services\DispositionPdfService;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 
-/** Lembar disposisi siap cetak (gunakan "Simpan sebagai PDF" di dialog cetak browser). */
+/** Cetak lembar disposisi (PDF) yang sudah digabung dengan file surat. */
 class ArsipPrintController extends Controller
 {
-    public function __invoke(Request $request, Letter $letter)
+    public function __invoke(Request $request, Letter $letter, DispositionPdfService $pdf): Response
     {
         abort_unless(ArsipService::canView($request->user(), $letter), 403);
         abort_unless($letter->disposed_at !== null, 404, 'Surat belum didisposisi.');
 
-        $letter->load('dispositions.toPosition', 'dispositions.toUser', 'dispositions.fromPosition', 'disposer', 'kadisPosition', 'parafUser', 'verifierPosition');
+        $result = $pdf->build($letter);
+        $filename = 'disposisi-'.str($letter->agenda_number.'-'.$letter->letter_number)->slug().'.pdf';
 
-        return view('arsip.print', [
-            'letter' => $letter,
-            'agency' => Setting::get('agency_name'),
-            'kadisTargets' => $letter->kadisPosition?->subordinates()->get() ?? collect(),
-            'firstLevel' => $letter->dispositions->whereNull('parent_id')->pluck('to_position_id')->all(),
-            'followUps' => $letter->dispositions->whereNotNull('parent_id'),
+        return response($result['content'], 200, [
+            'Content-Type' => 'application/pdf',
+            'Content-Disposition' => ($request->boolean('unduh') ? 'attachment' : 'inline').'; filename="'.$filename.'"',
+            'X-Disposisi-Merged' => $result['merged'] ? '1' : '0',
         ]);
     }
 }

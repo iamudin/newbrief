@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    // Dipakai untuk mengonversi PDF surat versi baru agar bisa digabung dengan lembar disposisi.
+    'ghostscript' => [
+        'path' => env('GHOSTSCRIPT_PATH', 'gs'),
+    ],
+
 ];

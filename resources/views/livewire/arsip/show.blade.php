@@ -14,7 +14,10 @@
                 <div class="flex items-center justify-between gap-2">
                     <h2 class="card-title">Data surat</h2>
                     <div class="flex gap-1.5">
-                        @if ($letter->disposed_at)<a href="{{ route('arsip.print', $letter) }}" target="_blank" class="btn-outline btn-sm"><x-icon name="print" size="13" />Lembar disposisi</a>@endif
+                        @if ($letter->disposed_at)
+                            <a href="{{ route('arsip.print', $letter) }}" target="_blank" class="btn-outline btn-sm" title="Lembar disposisi + file surat dalam satu PDF"><x-icon name="print" size="13" />Cetak disposisi</a>
+                            <a href="{{ route('arsip.print', $letter) }}?unduh=1" class="btn-outline btn-sm" title="Unduh PDF gabungan">PDF</a>
+                        @endif
                         @if ($canEdit)<a href="{{ route('arsip.edit', $letter) }}" wire:navigate class="btn-outline btn-sm"><x-icon name="edit" size="13" />Ubah</a>@endif
                     </div>
                 </div>

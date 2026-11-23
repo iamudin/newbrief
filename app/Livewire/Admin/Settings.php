@@ -6,10 +6,15 @@ use App\Models\Holiday;
 use App\Models\Setting;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('layouts::admin')]
 class Settings extends Component
 {
+    use WithFileUploads;
+
+    public $logo;
+
     /** @var array<string, string> */
     public array $values = [];
 
@@ -29,6 +34,9 @@ class Settings extends Component
         $time = ['required', 'date_format:H:i'];
         $this->validate([
             'values.agency_name' => 'required|string|max:150',
+            'values.government_name' => 'required|string|max:150',
+            'values.regency' => 'nullable|string|max:100',
+            'logo' => 'nullable|image|max:1024',
             'values.deadline_eselon3' => $time,
             'values.deadline_eselon4' => [...$time, 'after:values.deadline_eselon3'],
             'values.deadline_staff' => [...$time, 'after:values.deadline_eselon4'],
@@ -45,6 +53,15 @@ class Settings extends Component
             'values.deadline_staff' => 'batas Staff',
             'values.office_radius' => 'radius kantor',
         ]);
+
+        if ($this->logo) {
+            $dir = public_path('uploads');
+            is_dir($dir) || mkdir($dir, 0755, true);
+            $name = 'logo-instansi-'.now()->timestamp.'.'.$this->logo->getClientOriginalExtension();
+            copy($this->logo->getRealPath(), $dir.'/'.$name);
+            $this->values['agency_logo'] = 'uploads/'.$name;
+            $this->reset('logo');
+        }
 
         foreach ($this->values as $key => $value) {
             Setting::put($key, $value);

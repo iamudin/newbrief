@@ -38,6 +38,8 @@ class Employees extends Component
 
     public string $gender = '';
 
+    public string $rank = '';
+
     public string $password = '';
 
     public ?int $positionId = null;
@@ -51,7 +53,7 @@ class Employees extends Component
 
     public function create(): void
     {
-        $this->reset('editingId', 'name', 'nip', 'email', 'phone', 'gender', 'password', 'positionId');
+        $this->reset('editingId', 'name', 'nip', 'email', 'phone', 'gender', 'rank', 'password', 'positionId');
         $this->showForm = true;
     }
 
@@ -61,7 +63,7 @@ class Employees extends Component
         $this->editingId = $id;
         $this->fill([
             'name' => $user->name, 'nip' => $user->nip, 'email' => (string) $user->email,
-            'phone' => (string) $user->phone, 'gender' => (string) $user->gender, 'password' => '',
+            'phone' => (string) $user->phone, 'gender' => (string) $user->gender, 'rank' => (string) $user->rank, 'password' => '',
             'positionId' => $user->currentAssignment?->position_id,
         ]);
         $this->showForm = true;
@@ -75,11 +77,12 @@ class Employees extends Component
             'email' => ['nullable', 'email', 'max:150', Rule::unique('users', 'email')->ignore($this->editingId)],
             'phone' => 'nullable|string|max:30',
             'gender' => 'nullable|in:L,P',
+            'rank' => 'nullable|string|max:100',
             'password' => [$this->editingId ? 'nullable' : 'required', 'string', 'min:8'],
             'positionId' => 'nullable|exists:positions,id',
         ], attributes: ['positionId' => 'jabatan']);
 
-        $attributes = ['name' => $this->name, 'nip' => $this->nip, 'email' => $this->email ?: null, 'phone' => $this->phone ?: null, 'gender' => $this->gender ?: null];
+        $attributes = ['name' => $this->name, 'nip' => $this->nip, 'email' => $this->email ?: null, 'phone' => $this->phone ?: null, 'gender' => $this->gender ?: null, 'rank' => $this->rank ?: null];
 
         if ($this->password !== '') {
             $attributes['password'] = $this->password;

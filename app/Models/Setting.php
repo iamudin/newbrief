@@ -18,6 +18,9 @@ class Setting extends Model
     /** @var array<string, string> */
     public const DEFAULTS = [
         'agency_name' => 'Dinas Penanaman Modal dan PTSP',
+        'government_name' => 'Pemerintah Kabupaten Bengkalis',
+        'regency' => 'Bengkalis',
+        'agency_logo' => '',
         'deadline_eselon3' => '08:00',
         'deadline_eselon4' => '08:30',
         'deadline_staff' => '08:45',

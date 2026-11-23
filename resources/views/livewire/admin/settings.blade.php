@@ -3,6 +3,12 @@
         <section class="card grid grid-cols-2 gap-3">
             <h2 class="card-title col-span-2">Instansi</h2>
             <div class="col-span-2"><label class="label">Nama instansi</label><input wire:model="values.agency_name" class="field"></div>
+            <div><label class="label">Pemerintah daerah (kop surat)</label><input wire:model="values.government_name" class="field" placeholder="Pemerintah Kabupaten …"></div>
+            <div><label class="label">Kabupaten / kota (tanda tangan)</label><input wire:model="values.regency" class="field"></div>
+            <div class="col-span-2 flex items-center gap-3">
+                <img src="{{ $logo ? $logo->temporaryUrl() : asset($values['agency_logo'] ?: 'images/logo-brief.png') }}" alt="Logo" class="size-14 rounded-lg border border-line object-contain p-1">
+                <div><label class="label">Logo kop lembar disposisi (PNG/JPG, maks 1 MB)</label><input type="file" wire:model="logo" accept="image/png,image/jpeg" class="text-xs">@error('logo')<p class="error">{{ $message }}</p>@enderror</div>
+            </div>
         </section>
         <section class="card grid grid-cols-4 gap-3">
             <h2 class="card-title col-span-4">Batas jam kepatuhan (WIB)</h2>

@@ -98,7 +98,7 @@ it('runs the full incoming letter disposition flow', function () {
         ->and($org['e4']->notifications()->count())->toBeGreaterThan(0);
 
     // Lembar disposisi & file surat bisa dibuka pihak terkait
-    $this->actingAs($org['staff'])->get(route('arsip.print', $letter))->assertOk()->assertSee('LEMBAR DISPOSISI')->assertSee('Koordinasikan dengan Bappeda');
+    $this->actingAs($org['staff'])->get(route('arsip.print', $letter))->assertOk()->assertHeader('Content-Type', 'application/pdf');
     $this->actingAs($org['e3'])->get(route('file', ['surat', $letter->id]))->assertOk();
 });
 
