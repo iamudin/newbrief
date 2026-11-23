@@ -15,6 +15,9 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    // Tampilkan daftar akun demo di halaman login (HANYA untuk pengembangan lokal).
+    'demo_accounts' => (bool) env('BRIEF_DEMO_ACCOUNTS', false),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

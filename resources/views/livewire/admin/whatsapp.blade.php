@@ -45,6 +45,7 @@
             <div class="flex flex-col justify-end gap-2">
                 <label class="flex items-center gap-2 text-sm"><input type="checkbox" wire:model="enabled" class="accent-navy"> Aktifkan notifikasi WhatsApp</label>
                 <label class="flex items-center gap-2 text-sm"><input type="checkbox" wire:model="remindDirections" class="accent-navy"> Pengingat batas jam instruksi</label>
+                <label class="flex items-center gap-2 text-sm" title="Matikan hanya bila gateway memakai sertifikat self-signed"><input type="checkbox" wire:model="verifyTls" class="accent-navy"> Verifikasi sertifikat TLS gateway</label>
             </div>
             <div class="col-span-2 flex flex-wrap gap-2">
                 <button class="btn-primary">Simpan</button>

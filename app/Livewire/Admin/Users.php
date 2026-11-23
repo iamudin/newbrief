@@ -5,7 +5,9 @@ namespace App\Livewire\Admin;
 use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -19,6 +21,7 @@ class Users extends Component
     #[Url]
     public string $search = '';
 
+    #[Locked]
     public ?int $editingId = null;
 
     public bool $showForm = false;
@@ -67,7 +70,7 @@ class Users extends Component
             'name' => 'required|string|max:150',
             'nip' => ['required', 'string', 'max:30', Rule::unique('users', 'nip')->ignore($this->editingId)],
             'email' => ['nullable', 'email', 'max:150', Rule::unique('users', 'email')->ignore($this->editingId)],
-            'password' => [$this->editingId ? 'nullable' : 'required', 'string', 'min:8'],
+            'password' => [$this->editingId ? 'nullable' : 'required', 'string', Password::defaults()],
             'isAdmin' => 'boolean',
             'isActive' => 'boolean',
         ]);
@@ -81,7 +84,9 @@ class Users extends Component
         $attributes = ['name' => $data['name'], 'nip' => $data['nip'], 'email' => $data['email'] ?: null, 'is_admin' => $this->isAdmin, 'is_active' => $this->isActive];
 
         if ($this->password !== '') {
+            // Password yang ditetapkan admin bersifat sementara → wajib diganti saat login.
             $attributes['password'] = $this->password;
+            $attributes['must_change_password'] = $this->editingId !== auth()->id();
         }
 
         User::query()->updateOrCreate(['id' => $this->editingId], $attributes);
@@ -92,7 +97,8 @@ class Users extends Component
     public function resetPassword(int $id): void
     {
         $password = Str::password(10, symbols: false);
-        User::query()->findOrFail($id)->update(['password' => $password]);
+        // Mengganti hash password otomatis memutus sesi lama pengguna (middleware auth.session).
+        User::query()->findOrFail($id)->update(['password' => $password, 'must_change_password' => true]);
         $this->dispatch('toast', message: 'Password baru: '.$password.' (sampaikan ke pegawai, hanya tampil sekali).');
     }
 

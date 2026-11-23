@@ -16,7 +16,8 @@ Route::middleware('guest')->group(function () {
     Route::livewire('/login', Login::class)->name('login');
 });
 
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'auth.session', 'account'])->group(function () {
+    Route::livewire('/ganti-password', Shared\ChangePassword::class)->name('password.change');
     Route::get('/', fn () => redirect(Auth::user()->homeRoute()))->name('home');
     Route::view('/tanpa-jabatan', 'no-position')->name('no-position');
 

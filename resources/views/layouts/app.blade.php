@@ -39,7 +39,8 @@
                     @if ($count = $user->unreadNotifications()->count())<span class="ml-auto chip bg-gold text-navy">{{ $count }}</span>@endif
                 </a>
             </nav>
-            <form method="POST" action="{{ route('logout') }}" class="p-4">
+            <a href="{{ route('password.change') }}" class="mx-3 flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-[#C9D3E3] hover:bg-navy-2"><x-icon name="key" size="18" />Ganti password</a>
+            <form method="POST" action="{{ route('logout') }}" class="p-4 pt-1">
                 @csrf
                 <button class="flex w-full cursor-pointer items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-rose-300 hover:bg-navy-2"><x-icon name="logout" size="18" />Keluar</button>
             </form>

@@ -5,6 +5,7 @@ namespace App\Livewire\Admin;
 use App\Models\Duty;
 use App\Models\Position;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 
@@ -15,6 +16,7 @@ class Duties extends Component
     #[Url]
     public ?int $positionId = null;
 
+    #[Locked]
     public ?int $editingId = null;
 
     public string $title = '';

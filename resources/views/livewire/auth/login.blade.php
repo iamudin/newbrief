@@ -25,7 +25,7 @@
         </button>
     </form>
 
-    @if (app()->isLocal())
+    @if (app()->isLocal() && config('app.demo_accounts'))
         <div class="mt-5 w-full max-w-sm rounded-xl bg-navy-2/60 p-3 text-[11px] text-[#C9D3E3]">
             <div class="mb-1 font-bold text-gold">Akun demo (lokal) · password: password</div>
             @foreach (\App\Models\User::query()->where('is_active', true)->with('currentAssignment.position')->get()->sortBy(fn ($u) => $u->is_admin ? 0 : $u->level()?->rank()) as $demo)

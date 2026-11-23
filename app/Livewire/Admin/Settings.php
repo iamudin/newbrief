@@ -36,7 +36,7 @@ class Settings extends Component
             'values.agency_name' => 'required|string|max:150',
             'values.government_name' => 'required|string|max:150',
             'values.regency' => 'nullable|string|max:100',
-            'logo' => 'nullable|image|max:1024',
+            'logo' => 'nullable|file|mimes:png,jpg,jpeg|mimetypes:image/png,image/jpeg|max:1024',
             'values.deadline_eselon3' => $time,
             'values.deadline_eselon4' => [...$time, 'after:values.deadline_eselon3'],
             'values.deadline_staff' => [...$time, 'after:values.deadline_eselon4'],
@@ -57,7 +57,11 @@ class Settings extends Component
         if ($this->logo) {
             $dir = public_path('uploads');
             is_dir($dir) || mkdir($dir, 0755, true);
-            $name = 'logo-instansi-'.now()->timestamp.'.'.$this->logo->getClientOriginalExtension();
+            // Ekstensi ditentukan dari isi file (bukan nama kiriman pengguna) dan dibatasi PNG/JPG,
+            // agar file berbahaya (mis. logo.php) tidak pernah tersimpan di folder publik.
+            $extension = ['image/png' => 'png', 'image/jpeg' => 'jpg'][$this->logo->getMimeType()] ?? null;
+            abort_unless($extension && @getimagesize($this->logo->getRealPath()), 422, 'File logo tidak valid.');
+            $name = 'logo-instansi-'.bin2hex(random_bytes(8)).'.'.$extension;
             copy($this->logo->getRealPath(), $dir.'/'.$name);
             $this->values['agency_logo'] = 'uploads/'.$name;
             $this->reset('logo');

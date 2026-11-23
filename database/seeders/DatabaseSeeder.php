@@ -29,6 +29,13 @@ class DatabaseSeeder extends Seeder
 
     public function run(): void
     {
+        // Data demo memakai password lemah; jangan pernah diisi di server produksi.
+        if (app()->isProduction() && ! env('BRIEF_ALLOW_DEMO_SEED')) {
+            $this->command?->error('DatabaseSeeder berisi data demo dan diblokir di produksi. Set BRIEF_ALLOW_DEMO_SEED=true bila benar-benar perlu.');
+
+            return;
+        }
+
         $this->password = Hash::make('password');
 
         foreach (Setting::DEFAULTS as $key => $value) {

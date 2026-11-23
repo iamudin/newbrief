@@ -36,6 +36,7 @@ class Setting extends Model
         'wa_host' => '',
         'wa_session' => 'brief',
         'wa_remind_directions' => '1',
+        'wa_verify_tls' => '1',
     ];
 
     public static function get(string $key, ?string $default = null): ?string

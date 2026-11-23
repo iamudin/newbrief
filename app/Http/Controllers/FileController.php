@@ -10,6 +10,8 @@ use App\Services\ArsipService;
 use App\Services\DirectionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\HeaderUtils;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class FileController extends Controller
@@ -26,7 +28,9 @@ class FileController extends Controller
             // Tampil langsung (inline) agar bisa dipratinjau; ?unduh=1 untuk mengunduh.
             return $request->boolean('unduh')
                 ? Storage::disk('local')->download($letter->file_path, $letter->file_name)
-                : Storage::disk('local')->response($letter->file_path, $letter->file_name, ['Content-Disposition' => 'inline; filename="'.addslashes($letter->file_name).'"']);
+                : Storage::disk('local')->response($letter->file_path, $letter->file_name, [
+                    'Content-Disposition' => HeaderUtils::makeDisposition('inline', $letter->file_name, Str::ascii($letter->file_name) ?: 'surat'),
+                ]);
         }
 
         [$path, $name, $recipients] = match ($type) {

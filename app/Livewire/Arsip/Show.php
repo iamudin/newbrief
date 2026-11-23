@@ -6,11 +6,13 @@ use App\Models\Letter;
 use App\Models\LetterDisposition;
 use App\Services\ArsipService;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 #[Layout('layouts::app')]
 class Show extends Component
 {
+    #[Locked]
     public Letter $letter;
 
     public string $parafNote = '';

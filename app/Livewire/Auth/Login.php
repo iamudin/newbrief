@@ -25,13 +25,17 @@ class Login extends Component
     {
         $this->validate();
         $key = 'login:'.mb_strtolower($this->nip).'|'.request()->ip();
+        $ipKey = 'login-ip:'.request()->ip();
 
-        if (RateLimiter::tooManyAttempts($key, 5)) {
-            throw ValidationException::withMessages(['nip' => 'Terlalu banyak percobaan. Coba lagi dalam '.RateLimiter::availableIn($key).' detik.']);
+        // 5 percobaan/menit per akun+IP, 20 percobaan/menit per IP (cegah brute force & password spraying).
+        if (RateLimiter::tooManyAttempts($key, 5) || RateLimiter::tooManyAttempts($ipKey, 20)) {
+            $wait = max(RateLimiter::availableIn($key), RateLimiter::availableIn($ipKey));
+            throw ValidationException::withMessages(['nip' => 'Terlalu banyak percobaan. Coba lagi dalam '.$wait.' detik.']);
         }
 
         if (! Auth::attempt(['nip' => $this->nip, 'password' => $this->password, 'is_active' => true], $this->remember)) {
             RateLimiter::hit($key);
+            RateLimiter::hit($ipKey);
             throw ValidationException::withMessages(['nip' => 'NIP atau password salah, atau akun tidak aktif.']);
         }
 

@@ -31,6 +31,7 @@
             </nav>
             <div class="border-t border-navy-2 p-4 text-xs text-[#C9D3E3]">
                 <div class="mb-2 font-semibold text-white">{{ auth()->user()->name }}</div>
+                <a href="{{ route('password.change') }}" class="mb-2 flex items-center gap-2 font-semibold text-[#C9D3E3]"><x-icon name="key" size="16" />Ganti password</a>
                 <form method="POST" action="{{ route('logout') }}">@csrf<button class="flex cursor-pointer items-center gap-2 font-semibold text-rose-300"><x-icon name="logout" size="16" />Keluar</button></form>
             </div>
         </aside>

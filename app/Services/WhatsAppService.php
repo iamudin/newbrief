@@ -7,6 +7,7 @@ use App\Models\Setting;
 use App\Models\User;
 use App\Models\WhatsappMessage;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Client\PendingRequest;
 use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Http;
 
@@ -20,6 +21,14 @@ use Illuminate\Support\Facades\Http;
  */
 class WhatsAppService
 {
+    /** Batas pesan WhatsApp per penerima per jam (mencegah spam / nomor diblokir WhatsApp). */
+    public const HOURLY_LIMIT = 20;
+
+    private static function recentCount(int $userId): int
+    {
+        return WhatsappMessage::query()->where('user_id', $userId)->whereIn('status', ['queued', 'sent'])->where('created_at', '>=', now()->subHour())->count();
+    }
+
     public static function isConfigured(): bool
     {
         return filled(Setting::get('wa_host')) && filled(Setting::get('wa_session'));
@@ -61,6 +70,7 @@ class WhatsAppService
             blank($user->phone) => 'Nomor WhatsApp '.$user->name.' belum diisi.',
             ! $to => 'Nomor WhatsApp '.$user->name.' tidak valid.',
             ! $user->is_active => 'Akun '.$user->name.' nonaktif.',
+            self::recentCount($user->id) >= self::HOURLY_LIMIT => 'Batas '.self::HOURLY_LIMIT.' pesan/jam ke '.$user->name.' tercapai (anti-spam).',
             default => null,
         };
 
@@ -151,7 +161,7 @@ class WhatsAppService
     public function sessionStatus(): array
     {
         try {
-            $response = Http::withoutVerifying()->acceptJson()->timeout(10)
+            $response = self::http()->timeout(10)
                 ->get(rtrim((string) Setting::get('wa_host'), '/').'/session/'.rawurlencode((string) Setting::get('wa_session')));
         } catch (\Throwable $e) {
             return ['status' => 'unknown', 'error' => 'Tidak dapat terhubung ke gateway: '.$e->getMessage()];
@@ -207,10 +217,17 @@ class WhatsAppService
 
     private function post(string $path, array $payload): Response
     {
-        return Http::withoutVerifying()
-            ->acceptJson()
+        return self::http()
             ->timeout(15)
             ->post(rtrim((string) Setting::get('wa_host'), '/').$path, $payload);
+    }
+
+    /** Klien HTTP ke gateway: verifikasi sertifikat TLS aktif kecuali dimatikan admin (gateway self-signed). */
+    private static function http(): PendingRequest
+    {
+        $client = Http::acceptJson()->withOptions(['allow_redirects' => false]);
+
+        return Setting::get('wa_verify_tls') === '0' ? $client->withoutVerifying() : $client;
     }
 
     private function safeJson(callable $request): array

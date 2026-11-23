@@ -8,6 +8,7 @@ use App\Models\Position;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 
 /** Struktur atasan–bawahan berbasis jabatan, diatur dengan nested drag & drop. */
@@ -18,6 +19,7 @@ class Structure extends Component
 
     public bool $showForm = false;
 
+    #[Locked]
     public ?int $editingId = null;
 
     public string $name = '';

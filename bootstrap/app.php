@@ -15,7 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'level' => \App\Http\Middleware\EnsureLevel::class,
             'admin' => \App\Http\Middleware\EnsureAdmin::class,
+            'account' => \App\Http\Middleware\EnsureAccountIsUsable::class,
         ]);
+        $middleware->web(append: [\App\Http\Middleware\SecurityHeaders::class]);
         $middleware->redirectUsersTo(fn () => auth()->user()?->homeRoute() ?? '/');
     })
     ->withExceptions(function (Exceptions $exceptions): void {

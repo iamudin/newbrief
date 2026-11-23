@@ -21,6 +21,8 @@ class WhatsApp extends Component
 
     public bool $remindDirections = true;
 
+    public bool $verifyTls = true;
+
     public string $host = '';
 
     public string $session = '';
@@ -41,6 +43,7 @@ class WhatsApp extends Component
     {
         $this->enabled = Setting::get('wa_enabled') === '1';
         $this->remindDirections = Setting::get('wa_remind_directions') === '1';
+        $this->verifyTls = Setting::get('wa_verify_tls') !== '0';
         $this->host = (string) Setting::get('wa_host');
         $this->session = (string) Setting::get('wa_session');
     }
@@ -48,7 +51,7 @@ class WhatsApp extends Component
     public function save(): void
     {
         $this->validate([
-            'host' => 'nullable|url|max:255',
+            'host' => ['nullable', 'url:https,http', 'max:255'],
             'session' => 'required|string|max:100|regex:/^[A-Za-z0-9_-]+$/',
         ], ['session.regex' => 'Nama session hanya huruf, angka, - dan _.'], ['host' => 'URL API', 'session' => 'nama session']);
 
@@ -62,6 +65,7 @@ class WhatsApp extends Component
         Setting::put('wa_session', $this->session);
         Setting::put('wa_enabled', $this->enabled ? '1' : '0');
         Setting::put('wa_remind_directions', $this->remindDirections ? '1' : '0');
+        Setting::put('wa_verify_tls', $this->verifyTls ? '1' : '0');
         Setting::put('wa_connection', null); // gateway/session bisa berubah → cek ulang
         $this->dispatch('toast', message: 'Pengaturan WhatsApp disimpan.');
     }

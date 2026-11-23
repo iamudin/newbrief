@@ -1,5 +1,5 @@
 <div>
-    <x-page-header :title="$direction->typeLabel()" :subtitle="$direction->date->translatedFormat('l, d F Y').' · '.$direction->created_at->format('H.i')" :back="url()->previous() !== url()->current() ? url()->previous() : auth()->user()->homeRoute()">
+    <x-page-header :title="$direction->typeLabel()" :subtitle="$direction->date->translatedFormat('l, d F Y').' · '.$direction->created_at->format('H.i')" :back="$backUrl">
         <div class="mt-3 flex flex-wrap gap-2">
             <span class="chip {{ $recipient->stateClass() }}">{{ $recipient->stateLabel() }}</span>
             @if ($recipient->tasks->isNotEmpty())<span class="chip bg-navy-2 text-white">{{ $recipient->doneCount() }}/{{ $recipient->tasks->count() }} selesai · {{ $recipient->progressPercent() }}%</span>@endif

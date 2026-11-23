@@ -7,7 +7,9 @@ use App\Models\Position;
 use App\Models\User;
 use App\Services\AssignmentService;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
@@ -26,6 +28,7 @@ class Employees extends Component
 
     public bool $showForm = false;
 
+    #[Locked]
     public ?int $editingId = null;
 
     public string $name = '';
@@ -78,7 +81,7 @@ class Employees extends Component
             'phone' => 'nullable|string|max:30',
             'gender' => 'nullable|in:L,P',
             'rank' => 'nullable|string|max:100',
-            'password' => [$this->editingId ? 'nullable' : 'required', 'string', 'min:8'],
+            'password' => [$this->editingId ? 'nullable' : 'required', 'string', Password::defaults()],
             'positionId' => 'nullable|exists:positions,id',
         ], attributes: ['positionId' => 'jabatan']);
 
@@ -86,6 +89,7 @@ class Employees extends Component
 
         if ($this->password !== '') {
             $attributes['password'] = $this->password;
+            $attributes['must_change_password'] = true; // password dari admin bersifat sementara
         }
 
         $user = User::query()->updateOrCreate(['id' => $this->editingId], $attributes);

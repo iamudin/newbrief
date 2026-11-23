@@ -443,6 +443,11 @@ class DirectionService
             throw ValidationException::withMessages(['target' => 'Jabatan ini belum memiliki pemegang.']);
         }
 
+        // Satu teguran per pegawai per hari (cegah spam notifikasi/WhatsApp).
+        if (Reprimand::query()->where('to_user_id', $holder->id)->whereDate('date', today())->exists()) {
+            throw ValidationException::withMessages(['reprimandMessage' => 'Pegawai ini sudah ditegur hari ini.']);
+        }
+
         $reprimand = Reprimand::query()->create([
             'date' => today()->toDateString(),
             'from_user_id' => $user->id,

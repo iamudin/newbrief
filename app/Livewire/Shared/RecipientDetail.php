@@ -8,6 +8,7 @@ use App\Models\DirectionRecipient;
 use App\Models\Task;
 use App\Services\DirectionService;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -16,6 +17,7 @@ class RecipientDetail extends Component
 {
     use WithFileUploads;
 
+    #[Locked]
     public DirectionRecipient $recipient;
 
     /** @var array<int, string> */
@@ -107,6 +109,15 @@ class RecipientDetail extends Component
         $this->reset('message');
     }
 
+    /** Tombol kembali hanya ke halaman di aplikasi ini (cegah open redirect via Referer). */
+    private function safeBackUrl(): string
+    {
+        $previous = url()->previous();
+        $sameHost = parse_url($previous, PHP_URL_HOST) === request()->getHost();
+
+        return $sameHost && $previous !== url()->current() && ! str_contains($previous, '/livewire') ? $previous : auth()->user()->homeRoute();
+    }
+
     public function render()
     {
         $user = auth()->user();
@@ -124,6 +135,7 @@ class RecipientDetail extends Component
             'isSender' => DirectionService::isSender($user, $this->recipient),
             'forwarded' => $forwarded,
             'statuses' => TaskStatus::cases(),
+            'backUrl' => $this->safeBackUrl(),
         ])->title($this->recipient->direction->typeLabel());
     }
 }

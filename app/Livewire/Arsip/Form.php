@@ -6,6 +6,7 @@ use App\Models\Letter;
 use App\Services\ArsipService;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 
@@ -15,6 +16,7 @@ class Form extends Component
 {
     use WithFileUploads;
 
+    #[Locked]
     public ?Letter $letter = null;
 
     public string $letter_number = '';
