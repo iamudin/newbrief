@@ -226,8 +226,9 @@ class KadisDashboardService
      *
      * @return array{0: array<int, int>, 1: array<int, string>}
      */
-    private function units(Collection $positions): array
+    public function units(?Collection $positions = null): array
     {
+        $positions ??= Position::query()->get(['id', 'name', 'unit', 'level', 'parent_id', 'sort_order'])->keyBy('id');
         $units = $positions->filter(fn (Position $p) => $p->level === Level::Eselon3)
             ->sortBy(fn (Position $p) => [$p->sort_order, $p->id])
             ->mapWithKeys(fn (Position $p) => [$p->id => $p->unit ?: $p->name])
@@ -273,10 +274,16 @@ class KadisDashboardService
     /** Surat masuk tanggal ini & ketepatan disposisinya. */
     private function letters(string $day): Collection
     {
+        return $this->lettersBetween(Carbon::parse($day), Carbon::parse($day));
+    }
+
+    /** Surat masuk yang diinput pada rentang tanggal & ketepatan disposisinya. */
+    public function lettersBetween(Carbon $from, Carbon $to): Collection
+    {
         $hours = max(1, (int) Setting::get('disposition_hours'));
         $urgentHours = max(1, (int) Setting::get('disposition_urgent_hours'));
 
-        return Letter::query()->whereDate('created_at', $day)->orderBy('created_at')
+        return Letter::query()->whereBetween('created_at', [$from->copy()->startOfDay(), $to->copy()->endOfDay()])->orderBy('created_at')
             ->get(['id', 'agenda_number', 'subject', 'sender', 'nature', 'created_at', 'paraf_at', 'disposed_at'])
             ->map(function (Letter $letter) use ($hours, $urgentHours) {
                 $urgent = in_array($letter->nature, ['segera', 'sangat_segera'], true);

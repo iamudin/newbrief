@@ -4,7 +4,9 @@ use App\Models\Duty;
 use App\Models\Position;
 use App\Models\PositionAssignment;
 use App\Models\User;
+use App\Services\DirectionService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Carbon;
 use Tests\TestCase;
 
 /*
@@ -76,4 +78,16 @@ function makeOrg(): array
     [$ps, $staff] = $make('Operator', 'staff', $p4);
 
     return ['kadis' => $kadis, 'e3' => $e3, 'e4' => $e4, 'staff' => $staff, 'positions' => ['kadis' => $pk, 'e3' => $p3, 'e4' => $p4, 'staff' => $ps]];
+}
+
+/** Kadis → E3 (arahan), E3 → E4, E4 → staff dengan $items tugas. */
+function cascade(array $org, DirectionService $service, int $items = 2): void
+{
+    $service->send($org['kadis'], 'general', 'Arahan pagi', [['position_id' => $org['positions']['e3']->id]]);
+    Carbon::setTestNow('2026-11-23 07:40');
+    $service->confirm($org['e3'], DirectionService::inbox($org['e3'])->first());
+    $service->send($org['e3'], 'task', 'Teruskan', [['position_id' => $org['positions']['e4']->id, 'items' => [['title' => 'Koordinasi']]]]);
+    Carbon::setTestNow('2026-11-23 08:10');
+    $service->confirm($org['e4'], DirectionService::inbox($org['e4'])->first());
+    $service->send($org['e4'], 'task', 'Kerjakan', [['position_id' => $org['positions']['staff']->id, 'items' => collect(range(1, $items))->map(fn ($i) => ['title' => "Tugas {$i}"])->all()]]);
 }

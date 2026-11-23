@@ -5,20 +5,10 @@
 @endphp
 <div>
     <x-page-header title="Dashboard Akuntabilitas" :subtitle="$data['date']->translatedFormat('l, d F Y').($data['is_today'] ? ' · '.now()->format('H.i') : '')">
-        <div class="mt-3 flex flex-wrap items-center justify-between gap-2">
-            <span class="text-xs text-[#C9D3E3]">Ketuk angka atau grafik untuk melihat sumber datanya</span>
-            <div class="flex items-center gap-1 rounded-xl bg-navy-2 p-1 text-xs font-semibold">
-                <button type="button" wire:click="shiftDay(-1)" class="rounded-lg px-2.5 py-1.5 hover:bg-white/10" aria-label="Hari kerja sebelumnya">‹</button>
-                <input type="date" wire:model.live="date" max="{{ today()->toDateString() }}" class="w-[8.5rem] rounded-lg bg-transparent px-1 py-1 text-center text-white [color-scheme:dark]" aria-label="Pilih tanggal">
-                <button type="button" wire:click="shiftDay(1)" @disabled($data['is_today']) class="rounded-lg px-2.5 py-1.5 hover:bg-white/10 disabled:opacity-30" aria-label="Hari kerja berikutnya">›</button>
-                @unless ($data['is_today'])
-                    <button type="button" wire:click="$set('date', '{{ today()->toDateString() }}')" class="rounded-lg bg-white px-2.5 py-1.5 text-navy">Hari ini</button>
-                @endunless
-            </div>
-        </div>
+        @include('livewire.kadis.partials.dashboard-controls', ['isCurrent' => $data['is_today'], 'unit' => 'hari kerja'])
     </x-page-header>
 
-    <main class="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-4 lg:px-8" wire:loading.class="opacity-60" wire:target="date,shiftDay">
+    <main class="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 py-4 lg:px-8" wire:loading.class="opacity-60" wire:target="date,shiftDay,period">
         @unless ($data['workday'])
             <div class="card flex items-center gap-3 border border-amber-200 bg-amber-50 text-sm text-amber-800">
                 <x-icon name="clock" />
@@ -206,5 +196,7 @@
                 @endforelse
             </a>
         </div>
+
+        @include('livewire.kadis.partials.brief-values', ['values' => $values, 'title' => 'Nilai BRIEF minggu ini', 'valueQuery' => ['periode' => 'mingguan', ...$q]])
     </main>
 </div>

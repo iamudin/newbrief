@@ -336,6 +336,8 @@ class DirectionService
             'verification_note' => $note,
             'verified_at' => now(),
             'verified_by' => $user->id,
+            // Riwayat revisi tetap tercatat walau status akhirnya "diterima" (nilai Efektif).
+            'revision_count' => $recipient->revision_count + ($status === 'revision' ? 1 : 0),
         ]);
 
         $recipient->toUser?->notify(new BriefNotification(

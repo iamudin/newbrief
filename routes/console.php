@@ -2,12 +2,14 @@
 
 use App\Services\ComplianceService;
 use App\Services\DirectionReminderService;
+use App\Services\KadisPeriodService;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Schedule;
 
-Artisan::command('brief:snapshot {date?}', function (ComplianceService $compliance) {
+Artisan::command('brief:snapshot {date?}', function (ComplianceService $compliance, KadisPeriodService $period) {
     $date = $this->argument('date') ?? today()->subDay()->toDateString();
     $rows = $compliance->forDate($date);
+    $period->evaluateDay($date); // rekap evaluasi harian untuk dashboard mingguan/bulanan
     $this->info("Kepatuhan {$date} dikunci: {$rows->count()} jabatan.");
 })->purpose('Kunci (snapshot) hasil kepatuhan hari kerja sebelumnya');
 

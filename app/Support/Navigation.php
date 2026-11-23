@@ -15,7 +15,7 @@ class Navigation
 
         $items = match ($user->level()) {
             Level::Kadis => [
-                ['label' => 'Dashboard', 'route' => 'kadis.dashboard', 'icon' => 'chart', 'active' => ['kadis.dashboard', 'kadis.metric']],
+                ['label' => 'Dashboard', 'route' => 'kadis.dashboard', 'icon' => 'chart', 'active' => ['kadis.dashboard', 'kadis.metric', 'kadis.value']],
                 ['label' => 'Arahan', 'route' => 'kadis.directions', 'icon' => 'pen', 'active' => 'kadis.directions'],
                 ['label' => 'Patuh', 'route' => 'kadis.compliance', 'icon' => 'clock', 'active' => 'kadis.compliance'],
                 ['label' => 'Pegawai', 'route' => 'kadis.employees', 'icon' => 'users', 'active' => 'kadis.employees'],

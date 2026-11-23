@@ -12,7 +12,7 @@ class ComplianceRecord extends Model
 
     protected function casts(): array
     {
-        return ['date' => 'date', 'acted_at' => 'datetime', 'status' => Compliance::class];
+        return ['date' => 'date', 'acted_at' => 'datetime', 'status' => Compliance::class, 'issues' => 'array', 'evaluated_at' => 'datetime'];
     }
 
     public function position(): BelongsTo

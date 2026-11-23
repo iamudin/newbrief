@@ -21,18 +21,6 @@ beforeEach(function () {
 
 afterEach(fn () => Carbon::setTestNow());
 
-/** Kadis → E3 (arahan), E3 → E4, E4 → staff dengan $items tugas. */
-function cascade(array $org, DirectionService $service, int $items = 2): void
-{
-    $service->send($org['kadis'], 'general', 'Arahan pagi', [['position_id' => $org['positions']['e3']->id]]);
-    Carbon::setTestNow('2026-11-23 07:40');
-    $service->confirm($org['e3'], DirectionService::inbox($org['e3'])->first());
-    $service->send($org['e3'], 'task', 'Teruskan', [['position_id' => $org['positions']['e4']->id, 'items' => [['title' => 'Koordinasi']]]]);
-    Carbon::setTestNow('2026-11-23 08:10');
-    $service->confirm($org['e4'], DirectionService::inbox($org['e4'])->first());
-    $service->send($org['e4'], 'task', 'Kerjakan', [['position_id' => $org['positions']['staff']->id, 'items' => collect(range(1, $items))->map(fn ($i) => ['title' => "Tugas {$i}"])->all()]]);
-}
-
 it('summarises the daily cascade, tasks and workload from real data', function () {
     cascade($this->org, $this->service, 2);
     Carbon::setTestNow('2026-11-23 08:40');
